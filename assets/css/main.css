@@ -50,6 +50,9 @@
   --heading-color: #ffffff;
   --surface-color: #252525;
   --contrast-color: #ffffff;
+
+  /* Nav colors */
+  --nav-color: #98b0c9;
 }
 
 /* Smooth scroll */
@@ -1456,15 +1459,16 @@ section,
   width: auto; 
   height: 50px;
   margin-left: 5%;
+  transition: 0.7s;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.7));
+}
+
+.img-icon:hover{
+  transition: 0.7s;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7));
 }
 
 .img-gif {
   width: 265px;
   height: 500px;
-}
-
-.rotated-gif {
-  transform: rotate(90deg);
-  height: 265px;
-  width: 500px;
 }
