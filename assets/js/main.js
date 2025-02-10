@@ -237,55 +237,45 @@
   /* 
     Modo Oscuro
   */
-  document.getElementById("toggle-theme").addEventListener("click", function() {
-    console.log("holi :3")
-    event.preventDefault();
-    
-    document.body.classList.toggle("dark-background");
-    document.body.classList.toggle("light-background");
-
-    // Cambiar el ícono de luna a sol (y viceversa)
-    var icon = document.querySelector("#toggle-theme i");
-    var span = document.querySelector("#toggle-theme span");
-    
-    if (document.body.classList.contains("dark-background")) {
-      icon.classList.remove("bi-moon");
-      icon.classList.add("bi-sun");
-      span.textContent = "Modo claro"; // Cambiar el texto
-      localStorage.setItem("theme", "dark");
-    } else {
-      icon.classList.remove("bi-sun");
-      icon.classList.add("bi-moon");
-      span.textContent = "Modo oscuro"; // Cambiar el texto
-      localStorage.setItem("theme", "light");
-    }
+    function toggleTheme(forceTheme = null) {
+      const body = document.body;
+      const icon = document.querySelector("#toggle-theme i");
+      const span = document.querySelector("#toggle-theme span");
+  
+      let isDark = body.classList.contains("dark-background");
+      
+      if (forceTheme !== null) {
+          isDark = forceTheme === "dark";
+      } else {
+          isDark = !isDark;
+      }
+  
+      if (isDark) {
+          body.classList.add("dark-background");
+          body.classList.remove("light-background");
+          icon.classList.remove("bi-moon");
+          icon.classList.add("bi-sun");
+          span.textContent = "Modo claro";
+          localStorage.setItem("theme", "dark");
+      } else {
+          body.classList.add("light-background");
+          body.classList.remove("dark-background");
+          icon.classList.remove("bi-sun");
+          icon.classList.add("bi-moon");
+          span.textContent = "Modo oscuro";
+          localStorage.setItem("theme", "light");
+      }
+  }
+  
+  document.getElementById("toggle-theme").addEventListener("click", function(event) {
+      event.preventDefault();
+      toggleTheme();
   });
-
-  window.addEventListener("DOMContentLoaded", (event) => {
-    var theme = localStorage.getItem("theme");
-    console.log(theme)
   
-    if (theme === "dark") {
-      document.body.classList.add("dark-background");
-      document.body.classList.remove("light-background");
-  
-      // Cambiar el ícono a sol y el texto a "Modo claro"
-      var icon = document.querySelector("#toggle-theme i");
-      var span = document.querySelector("#toggle-theme span");
-      icon.classList.remove("bi-moon");
-      icon.classList.add("bi-sun");
-      span.textContent = "Modo claro"; // Cambiar el texto
-    } else {
-      document.body.classList.add("light-background");
-      document.body.classList.remove("dark-background");
-  
-      // Cambiar el ícono a luna y el texto a "Modo oscuro"
-      var icon = document.querySelector("#toggle-theme i");
-      var span = document.querySelector("#toggle-theme span");
-      icon.classList.remove("bi-sun");
-      icon.classList.add("bi-moon");
-      span.textContent = "Modo oscuro"; // Cambiar el texto
-    }
+  window.addEventListener("DOMContentLoaded", () => {
+      const savedTheme = localStorage.getItem("theme") || "light";
+      toggleTheme(savedTheme);
   });
+  
 
 })();
