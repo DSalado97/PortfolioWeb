@@ -1,4 +1,4 @@
-(function() {
+(function () {
   "use strict";
 
   /**
@@ -29,7 +29,7 @@
    * Toggle mobile nav dropdowns
    */
   document.querySelectorAll('.navmenu .toggle-dropdown').forEach(navmenu => {
-    navmenu.addEventListener('click', function(e) {
+    navmenu.addEventListener('click', function (e) {
       e.preventDefault();
       this.parentNode.classList.toggle('active');
       this.parentNode.nextElementSibling.classList.toggle('dropdown-active');
@@ -110,7 +110,7 @@
     new Waypoint({
       element: item,
       offset: '80%',
-      handler: function(direction) {
+      handler: function (direction) {
         let progress = item.querySelectorAll('.progress .progress-bar');
         progress.forEach(el => {
           el.style.width = el.getAttribute('aria-valuenow') + '%';
@@ -129,13 +129,13 @@
   /**
    * Init isotope layout and filters
    */
-  document.querySelectorAll('.isotope-layout').forEach(function(isotopeItem) {
+  document.querySelectorAll('.isotope-layout').forEach(function (isotopeItem) {
     let layout = isotopeItem.getAttribute('data-layout') ?? 'masonry';
     let filter = isotopeItem.getAttribute('data-default-filter') ?? '*';
     let sort = isotopeItem.getAttribute('data-sort') ?? 'original-order';
 
     let initIsotope;
-    imagesLoaded(isotopeItem.querySelector('.isotope-container'), function() {
+    imagesLoaded(isotopeItem.querySelector('.isotope-container'), function () {
       initIsotope = new Isotope(isotopeItem.querySelector('.isotope-container'), {
         itemSelector: '.isotope-item',
         layoutMode: layout,
@@ -144,8 +144,8 @@
       });
     });
 
-    isotopeItem.querySelectorAll('.isotope-filters li').forEach(function(filters) {
-      filters.addEventListener('click', function() {
+    isotopeItem.querySelectorAll('.isotope-filters li').forEach(function (filters) {
+      filters.addEventListener('click', function () {
         isotopeItem.querySelector('.isotope-filters .filter-active').classList.remove('filter-active');
         this.classList.add('filter-active');
         initIsotope.arrange({
@@ -163,7 +163,7 @@
    * Init swiper sliders
    */
   function initSwiper() {
-    document.querySelectorAll(".init-swiper").forEach(function(swiperElement) {
+    document.querySelectorAll(".init-swiper").forEach(function (swiperElement) {
       let config = JSON.parse(
         swiperElement.querySelector(".swiper-config").innerHTML.trim()
       );
@@ -181,7 +181,7 @@
   /**
    * Correct scrolling position upon page load for URLs containing hash links.
    */
-  window.addEventListener('load', function(e) {
+  window.addEventListener('load', function (e) {
     if (window.location.hash) {
       if (document.querySelector(window.location.hash)) {
         setTimeout(() => {
@@ -221,61 +221,69 @@
   /*
     Calcular Edad
   */
-    function calcularEdad(fechaNacimiento) {
-      const hoy = new Date();
-      const nacimiento = new Date(fechaNacimiento);
-      let edad = hoy.getFullYear() - nacimiento.getFullYear();
-      const mes = hoy.getMonth() - nacimiento.getMonth();
-      if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
-          edad--;
-      }
-      return edad;
+  function calcularEdad(fechaNacimiento) {
+    const hoy = new Date();
+    const nacimiento = new Date(fechaNacimiento);
+    let edad = hoy.getFullYear() - nacimiento.getFullYear();
+    const mes = hoy.getMonth() - nacimiento.getMonth();
+    if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+      edad--;
+    }
+    return edad;
   }
 
-  document.getElementById("edad").textContent = calcularEdad("1997-10-25");
+  const edadElement = document.getElementById("edad");
+  if (edadElement) {
+    edadElement.textContent = calcularEdad("1997-10-25");
+  }
+
+
 
   /* 
     Modo Oscuro
   */
-    function toggleTheme(forceTheme = null) {
-      const body = document.body;
-      const icon = document.querySelector("#toggle-theme i");
-      const span = document.querySelector("#toggle-theme span");
-  
-      let isDark = body.classList.contains("dark-background");
-      
-      if (forceTheme !== null) {
-          isDark = forceTheme === "dark";
-      } else {
-          isDark = !isDark;
-      }
-  
-      if (isDark) {
-          body.classList.add("dark-background");
-          body.classList.remove("light-background");
-          icon.classList.remove("bi-moon");
-          icon.classList.add("bi-sun");
-          span.textContent = "Modo claro";
-          localStorage.setItem("theme", "dark");
-      } else {
-          body.classList.add("light-background");
-          body.classList.remove("dark-background");
-          icon.classList.remove("bi-sun");
-          icon.classList.add("bi-moon");
-          span.textContent = "Modo oscuro";
-          localStorage.setItem("theme", "light");
-      }
+  function toggleTheme(forceTheme = null) {
+    const body = document.body;
+    const icon = document.querySelector("#toggle-theme i");
+    const span = document.querySelector("#toggle-theme span");
+
+    let isDark = body.classList.contains("dark-background");
+
+    if (forceTheme !== null) {
+      isDark = forceTheme === "dark";
+    } else {
+      isDark = !isDark;
+    }
+
+    if (isDark) {
+      body.classList.add("dark-background");
+      body.classList.remove("light-background");
+      icon.classList.remove("bi-moon");
+      icon.classList.add("bi-sun");
+      span.textContent = "Modo claro";
+      localStorage.setItem("theme", "dark");
+    } else {
+      body.classList.add("light-background");
+      body.classList.remove("dark-background");
+      icon.classList.remove("bi-sun");
+      icon.classList.add("bi-moon");
+      span.textContent = "Modo oscuro";
+      localStorage.setItem("theme", "light");
+    }
+
   }
-  
-  document.getElementById("toggle-theme").addEventListener("click", function(event) {
-      event.preventDefault();
-      toggleTheme();
-  });
-  
+
   window.addEventListener("DOMContentLoaded", () => {
-      const savedTheme = localStorage.getItem("theme") || "light";
-      toggleTheme(savedTheme);
+    const toggleThemeButton = document.getElementById("toggle-theme");
+    if (toggleThemeButton) {
+      toggleThemeButton.addEventListener("click", function (event) {
+        event.preventDefault();
+        toggleTheme();
+      });
+    }
+
+    const savedTheme = localStorage.getItem("theme") || "light";
+    toggleTheme(savedTheme);
   });
-  
 
 })();
