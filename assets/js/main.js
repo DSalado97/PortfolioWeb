@@ -286,4 +286,11 @@
     toggleTheme(savedTheme);
   });
 
+  document.querySelectorAll('.toggle-title').forEach(title => {
+    title.addEventListener('click', () => {
+      const item = title.closest('.skills-item');
+      item.classList.toggle('active');
+    });
+  });
+
 })();

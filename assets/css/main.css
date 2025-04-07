@@ -540,7 +540,7 @@ section,
 
 .hero:before {
   content: "";
-  background: color-mix(in srgb, var(--background-color), transparent 30%);
+  background: color-mix(in srgb, var(--background-color), transparent 25%);
   position: absolute;
   inset: 0;
   z-index: 2;
@@ -1473,3 +1473,48 @@ section,
   height: 500px;
 }
 
+.toggle-title {
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.toggle-icon {
+  transition: transform 0.3s ease;
+  font-size: 1.2rem;
+}
+
+.skills-item.active .toggle-icon {
+  transform: rotate(180deg);
+}
+
+.toggle-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+
+.skills-item {
+  margin-bottom: 2%;
+}
+
+.skills-item.active .toggle-content {
+  max-height: 700px;
+}
+
+.resume-entry {
+  margin-bottom: 20px;
+}
+
+.resume-entry h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.resume-entry li {
+  margin: 0;
+  font-size: 0.95rem;
+}
