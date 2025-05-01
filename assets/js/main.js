@@ -273,7 +273,7 @@
 
   }
 
-  window.addEventListener("DOMContentLoaded", () => {
+  window.onload = () => {
     const toggleThemeButton = document.getElementById("toggle-theme");
     if (toggleThemeButton) {
       toggleThemeButton.addEventListener("click", function (event) {
@@ -284,7 +284,7 @@
 
     const savedTheme = localStorage.getItem("theme") || "light";
     toggleTheme(savedTheme);
-  });
+  };
 
   document.querySelectorAll('.toggle-title').forEach(title => {
     title.addEventListener('click', () => {

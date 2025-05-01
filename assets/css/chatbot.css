@@ -1,0 +1,57 @@
+/* assets/css/chatbot.css */
+
+.scroll-toggle {
+    position: fixed;
+    visibility: hidden;
+    opacity: 0;
+    right: 70px;
+    bottom: -15px;
+    z-index: 99998;
+    background-color: var(--accent-color);
+    width: 44px;
+    height: 44px;
+    border-radius: 50px;
+    transition: all 0.4s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .scroll-toggle i {
+    font-size: 24px;
+    color: var(--contrast-color);
+    line-height: 0;
+  }
+  
+  .scroll-toggle:hover {
+    background-color: color-mix(in srgb, var(--accent-color), transparent 20%);
+    color: var(--contrast-color);
+  }
+  
+  .scroll-toggle.active {
+    visibility: visible;
+    opacity: 1;
+    bottom: 15px;
+  }
+  
+  #chatbot-container {
+    position: fixed;
+    bottom: 70px;
+    right: 20px;
+    width: 350px;
+    height: 500px;
+    max-width: 90vw;
+    max-height: 80vh;
+    z-index: 9999;
+    display: none;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  
+  #chatbot-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+  
