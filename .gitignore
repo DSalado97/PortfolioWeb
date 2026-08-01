@@ -16,6 +16,17 @@ desktop.ini
 # Source maps de vendor (no necesarios en producción)
 assets/vendor/**/*.map
 
+# Archivos vendor no minificados (solo desarrollo)
+assets/vendor/bootstrap/js/bootstrap.js
+assets/vendor/bootstrap/js/bootstrap.esm.js
+assets/vendor/bootstrap/js/bootstrap.bundle.js
+assets/vendor/glightbox/js/glightbox.js
+assets/vendor/isotope-layout/isotope.pkgd.js
+assets/vendor/aos/aos.cjs.js
+assets/vendor/aos/aos.esm.js
+assets/vendor/typed.js/typed.cjs
+assets/vendor/typed.js/typed.module.js
+
 # Archivos SCSS/CSS generados por build
 .sass-cache/
 assets/scss/
