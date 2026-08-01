@@ -1,0 +1,24 @@
+# Dependencias
+node_modules/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos de editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Source maps de vendor (no necesarios en producción)
+assets/vendor/**/*.map
+
+# Archivos SCSS/CSS generados por build
+.sass-cache/
+assets/scss/
+
+# Logs
+*.log
