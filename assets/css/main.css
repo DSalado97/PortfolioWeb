@@ -1518,3 +1518,11 @@ section,
   margin: 0;
   font-size: 0.95rem;
 }
+
+/* Portfolio GIF preview hover transition */
+.portfolio-item img[data-gif] {
+  transition: opacity 0.2s ease;
+}
+.portfolio-item img[data-gif]:hover {
+  opacity: 0.85;
+}
