@@ -43,21 +43,11 @@
       onScroll();
     }
   
-    // Ejecuta cuando DOM esté listo, y además chequea por si falla
+    // Ejecuta cuando DOM esté listo
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', createChatbot);
     } else {
       createChatbot();
     }
-  
-    // Failsafe: reintenta cada 1s si no existe el botón
-    let retry = 0;
-    const maxRetries = 5;
-    const interval = setInterval(() => {
-      if (!document.getElementById('chatbot-toggle')) {
-        createChatbot();
-      }
-      if (++retry >= maxRetries) clearInterval(interval);
-    }, 1000);
   })();
   

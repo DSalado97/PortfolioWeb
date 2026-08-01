@@ -293,4 +293,14 @@
     });
   });
 
+  /**
+   * Portfolio hover: swap static image with animated GIF preview
+   */
+  document.querySelectorAll('.portfolio-item img[data-gif]').forEach(img => {
+    const staticSrc = img.src;
+    const gifSrc = img.getAttribute('data-gif');
+    img.addEventListener('mouseenter', () => { img.src = gifSrc; });
+    img.addEventListener('mouseleave', () => { img.src = staticSrc; });
+  });
+
 })();
