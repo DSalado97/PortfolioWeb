@@ -38,7 +38,7 @@
 
 </head>
 
-<body class="portfolio-details-page">
+<body class="portfolio-details-page" data-project-slug="portafolio-web" data-api-base-url="">
 
   <header id="header" class="header d-flex flex-column justify-content-center">
 
@@ -69,7 +69,7 @@
             <li class="current">Detalles Portfolio Web</li>
           </ol>
         </nav>
-        <h1>Más sobre la web Portfolio</h1>
+        <h1 data-project-title>Más sobre la web Portfolio</h1>
       </div>
     </div><!-- End Page Title -->
 
@@ -81,7 +81,7 @@
         <div class="row justify-content-between gy-4 mt-4">
 
           <div class="col-lg-8" data-aos="fade-up">
-            <div class="portfolio-description">
+            <div class="portfolio-description" data-project-description>
               <h2>Introducción</h2>
               <p>
                 Esta es la página web que he creado con el proposito de mostrar mi portafolio, mis habilidades y mi
@@ -157,7 +157,7 @@
           </div>
 
           <div class="col-lg-3" data-aos="fade-up" data-aos-delay="100">
-            <div class="portfolio-info">
+            <div class="portfolio-info" data-project-info>
               <h3>Información del proyecto</h3>
               <ul>
                 <li><strong>Categoría</strong>Web</li>
@@ -204,6 +204,7 @@
   <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
 
   <!-- Main JS File -->
+  <script src="assets/js/portfolio-data.js"></script>
   <script src="assets/js/main.js"></script>
   
   <!-- Chatbot -->
