@@ -1,7 +1,8 @@
 (function loadPortfolioData() {
   'use strict';
 
-  const apiBaseUrl = (document.body.dataset.apiBaseUrl || '').replace(/\/$/, '');
+  const configuredApiBaseUrl = document.body.dataset.apiBaseUrl || window.PORTFOLIO_API_BASE_URL || '';
+  const apiBaseUrl = configuredApiBaseUrl.replace(/\/$/, '');
   const projectSlug = document.body.dataset.projectSlug;
 
   function createElement(tagName, textContent, className) {
