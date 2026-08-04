@@ -1,2 +1,2 @@
-// Se sustituye por la URL pública de Render cuando la API esté desplegada.
-window.PORTFOLIO_API_BASE_URL = '';
+// API pública desplegada en Render.
+window.PORTFOLIO_API_BASE_URL = 'https://portfolio-web-daniel.onrender.com';
