@@ -84,18 +84,23 @@
   /**
    * Init typed.js
    */
-  const selectTyped = document.querySelector('.typed');
-  if (selectTyped) {
-    let typed_strings = selectTyped.getAttribute('data-typed-items');
-    typed_strings = typed_strings.split(',');
+  function initTyped() {
+    const selectTyped = document.querySelector('.typed');
+    if (!selectTyped || !selectTyped.dataset.typedItems || selectTyped.dataset.typedInitialized) return;
+    if (selectTyped.hasAttribute('data-portfolio-roles') && !document.body.dataset.portfolioDataState) return;
+    const typedStrings = selectTyped.dataset.typedItems.split(',');
     new Typed('.typed', {
-      strings: typed_strings,
+      strings: typedStrings,
       loop: true,
       typeSpeed: 100,
       backSpeed: 50,
       backDelay: 2000
     });
+    selectTyped.dataset.typedInitialized = 'true';
   }
+  initTyped();
+  document.addEventListener('portfolio:data-loaded', initTyped);
+  document.addEventListener('portfolio:data-error', initTyped);
 
   /**
    * Initiate Pure Counter
@@ -129,7 +134,10 @@
   /**
    * Init isotope layout and filters
    */
-  document.querySelectorAll('.isotope-layout').forEach(function (isotopeItem) {
+  function initIsotopeLayouts() {
+    document.querySelectorAll('.isotope-layout').forEach(function (isotopeItem) {
+      if (!isotopeItem.querySelector('.isotope-item')) return;
+      if (isotopeItem.querySelector('[data-portfolio-projects]') && !document.body.dataset.portfolioDataState) return;
     let layout = isotopeItem.getAttribute('data-layout') ?? 'masonry';
     let filter = isotopeItem.getAttribute('data-default-filter') ?? '*';
     let sort = isotopeItem.getAttribute('data-sort') ?? 'original-order';
@@ -157,15 +165,21 @@
       }, false);
     });
 
-  });
+    });
+  }
+  initIsotopeLayouts();
+  document.addEventListener('portfolio:data-loaded', initIsotopeLayouts);
+  document.addEventListener('portfolio:data-error', initIsotopeLayouts);
 
   /**
    * Init swiper sliders
    */
   function initSwiper() {
     document.querySelectorAll(".init-swiper").forEach(function (swiperElement) {
+      const swiperConfig = swiperElement.querySelector(".swiper-config");
+      if (!swiperConfig) return;
       let config = JSON.parse(
-        swiperElement.querySelector(".swiper-config").innerHTML.trim()
+        swiperConfig.innerHTML.trim()
       );
 
       if (swiperElement.classList.contains("swiper-tab")) {
