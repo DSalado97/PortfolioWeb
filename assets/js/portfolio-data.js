@@ -166,7 +166,9 @@
       (entries || []).forEach(entry => {
         const item = createElement('div', null, 'resume-item');
         item.appendChild(createElement('h4', entry[titleKey]));
-        item.appendChild(createElement('p')).appendChild(createElement('em', entry[placeKey]));
+        const place = [entry[placeKey], entry.ubicacion].filter(Boolean).join(' - ');
+        const metadata = [place, entry.periodo].filter(Boolean).join(' | ');
+        item.appendChild(createElement('p')).appendChild(createElement('em', metadata));
         addList(item, entry[detailsKey] || entry.responsabilidades);
         container.appendChild(item);
       });
