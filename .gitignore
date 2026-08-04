@@ -7,6 +7,9 @@ node_modules/
 !.env.example
 *-credentials.env
 
+# Documentación privada de conexiones y mantenimiento
+NOTAS-PORTFOLIO-LOCAL.md
+
 # Archivos de sistema
 .DS_Store
 Thumbs.db
