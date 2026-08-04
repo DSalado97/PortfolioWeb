@@ -20,6 +20,8 @@ portfolio-web/
 ├── index.html                          # Página principal
 ├── portfolio-details-*.html            # Páginas de detalle de proyectos
 ├── server.js                            # API y servidor de archivos estáticos
+├── render.yaml                           # Configuración del despliegue en Render
+├── atlas-credentials.env.example         # Plantilla de migración local a Atlas
 ├── package.json                         # Dependencias y comandos del servidor
 ├── .env.example                         # Configuración local de MongoDB
 ├── assets/
@@ -28,6 +30,7 @@ portfolio-web/
 │   │   └── chatbot.css                 # Estilos del chatbot asistente
 │   ├── js/
 │   │   ├── main.js                     # Interactividad y librerías vendor
+│   │   ├── api-config.js                # URL pública de la API
 │   │   ├── portfolio-data.js            # Renderizado de datos desde la API
 │   │   └── chatbot.js                  # Asistente virtual (Chipp.ai)
 │   ├── img/                            # Imágenes y recursos
@@ -72,7 +75,20 @@ GitHub Pages solo sirve archivos estáticos y no puede ejecutar `server.js` ni a
 - MongoDB Atlas u otra base de datos accesible desde Internet.
 - Desplegar `server.js` en un servicio Node.js como Render, Railway o Fly.io.
 - Configurar en ese servicio `MONGODB_URI`, `MONGODB_DB_NAME`, `PORT` y `ALLOWED_ORIGINS`.
-- Cambiar `data-api-base-url` en las páginas HTML por la URL pública de la API.
+- Cambiar `window.PORTFOLIO_API_BASE_URL` en `assets/js/api-config.js` por la URL pública de la API.
+
+La opción más sencilla es desplegar la web y `server.js` como un único servicio en Render. En ese caso no hace falta cambiar `data-api-base-url`, porque la web y la API compartirán dominio. Render leerá `MONGODB_URI` desde sus variables privadas y no desde el repositorio.
+
+### Migrar las colecciones locales a Atlas
+
+1. En Atlas crea el clúster y un usuario con permisos de escritura temporal para la migración.
+2. En **Network Access**, añade tu IP actual para conectar Compass. Para Render necesitarás permitir las conexiones del servicio; si usas `0.0.0.0/0`, utiliza una contraseña fuerte y el usuario de API con permisos de solo lectura.
+3. Copia `atlas-credentials.env.example` a `atlas-credentials.env`.
+4. Sustituye `TARGET_MONGODB_URI` por la URI de Atlas. No la publiques ni la envíes por chat.
+5. Cambia `REPLACE_TARGET` a `true` solo si quieres reemplazar las colecciones existentes en Atlas.
+6. Ejecuta `npm run migrate:atlas`.
+
+El script migra `perfil`, `proyectos`, `habilidades`, `experiencia`, `formacion` y `contacto`. El archivo `atlas-credentials.env` está excluido de Git.
 
 No publiques nunca `.env` ni una URI con usuario y contraseña en los archivos HTML o JavaScript.
 

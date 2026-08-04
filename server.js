@@ -125,7 +125,7 @@ app.use((error, request, response, next) => {
   response.status(500).json({ error: 'Error interno del servidor' });
 });
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log(`Portfolio disponible en http://localhost:${port}`);
   console.log(`Base de datos configurada: ${databaseName}`);
 });

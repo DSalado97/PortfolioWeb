@@ -4,9 +4,13 @@
   "private": true,
   "description": "Portfolio de Daniel Salado conectado a MongoDB",
   "main": "server.js",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "migrate:atlas": "node scripts/migrate-to-atlas.js"
   },
   "dependencies": {
     "dotenv": "^16.4.7",
