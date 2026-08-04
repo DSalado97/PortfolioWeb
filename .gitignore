@@ -8,7 +8,7 @@ node_modules/
 *-credentials.env
 
 # Documentación privada de conexiones y mantenimiento
-NOTAS-PORTFOLIO-LOCAL.md
+CONEXIONES-PORTFOLIO-LOCAL.md
 
 # Archivos de sistema
 .DS_Store
