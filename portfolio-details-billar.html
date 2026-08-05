@@ -4,6 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <link rel="canonical" href="https://dsalado97.github.io/PortfolioWeb/portfolio-details-billar.html">
   <title>DSR - Detalles Billar</title>
   <meta name="description" content="Billar: juego de billar para Android con físicas realistas, control táctil de fuerza y dirección. Desarrollado con Java en Android Studio.">
   <meta name="keywords" content="Billar, billar Android, juego móvil, Java, Android Studio, físicas, colisiones, Daniel Salado">
@@ -21,7 +22,7 @@
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com" rel="preconnect">
   <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&amp;family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&amp;family=Raleway:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&amp;display=swap" rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -35,7 +36,7 @@
 
 </head>
 
-<body class="portfolio-details-page light-background">
+<body class="portfolio-details-page light-background" data-project-slug="billar" data-api-base-url="">
 
   <header id="header" class="header d-flex flex-column justify-content-center">
 
@@ -43,7 +44,6 @@
 
     <nav id="navmenu" class="navmenu">
       <ul>
-        <li><a href="#" id="toggle-theme"><i class="bi bi-moon navicon"></i><span>Modo oscuro</span></a></li>
         <li><a href="index.html#hero" class="active"><i class="bi bi-house navicon"></i><span>Inicio</span></a></li>
         <li><a href="index.html#about"><i class="bi bi-person navicon"></i><span>Sobre mí</span></a></li>
         <li><a href="index.html#portfolio"><i class="bi bi-file-earmark-code navicon"></i><span>Portafolio</span></a></li>
@@ -66,7 +66,7 @@
             <li class="current">Detalles Billar</li>
           </ol>
         </nav>
-        <h1>Más sobre la aplicación Billar</h1>
+        <h1 data-project-title>Más sobre la aplicación Billar</h1>
       </div>
     </div><!-- End Page Title -->
 
@@ -78,7 +78,7 @@
         <div class="row justify-content-between gy-4 mt-4">
 
           <div class="col-lg-8" data-aos="fade-up">
-            <div class="portfolio-description">
+            <div class="portfolio-description" data-project-description>
               <h2>Introducción</h2>
               <p>
                 El jugador puede golpear la bola blanca del billar como si se tratará del billar de mesa.
@@ -117,7 +117,7 @@
           </div>
 
           <div class="col-lg-3" data-aos="fade-up" data-aos-delay="100">
-            <div class="portfolio-info">
+            <div class="portfolio-info" data-project-info>
               <h3>Información del proyecto</h3>
               <ul>
                 <li><strong>Categoría</strong>Multiplataforma</li>
@@ -129,7 +129,7 @@
                 </li>
                 <li><strong>Repositorio</strong> <a href="https://github.com/DSalado97/RepositorioBillar" target="_blank" rel="noopener noreferrer">Github</a></li>
               </ul>
-              <img src="assets/img/masonry-portfolio/Billar.gif" class="img-gif" alt="">
+              <img src="assets/img/masonry-portfolio/Billar.gif" class="img-gif" alt="" loading="lazy">
             </div>
           </div>
         </div>
@@ -141,6 +141,12 @@
 
   <!-- Scroll Top -->
   <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Selector de tema -->
+  <button type="button" id="toggle-theme" class="theme-toggle d-flex align-items-center justify-content-center"
+    aria-label="Cambiar a modo oscuro" title="Cambiar a modo oscuro">
+    <i class="bi bi-moon" aria-hidden="true"></i>
+  </button>
 
   <!-- Preloader -->
   <div id="preloader"></div>
@@ -158,12 +164,10 @@
   <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
 
   <!-- Main JS File -->
+  <script src="assets/js/api-config.js"></script>
+  <script src="assets/js/portfolio-data.js"></script>
   <script src="assets/js/main.js"></script>
   
-  <!-- Chatbot -->
-  <link rel="stylesheet" href="./assets/css/chatbot.css">
-  <script src="./assets/js/chatbot.js" defer></script>  
-
 </body>
 
 </html>
