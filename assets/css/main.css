@@ -411,6 +411,39 @@ h6 {
 }
 
 /*--------------------------------------------------------------
+# Selector de tema
+--------------------------------------------------------------*/
+.theme-toggle {
+  position: fixed;
+  visibility: visible;
+  opacity: 1;
+  right: 15px;
+  bottom: 15px;
+  z-index: 99998;
+  border: 0;
+  background-color: var(--accent-color);
+  color: var(--contrast-color);
+  width: 44px;
+  height: 44px;
+  border-radius: 50px;
+  transition: all 0.4s;
+}
+
+.theme-toggle i {
+  font-size: 20px;
+  line-height: 0;
+}
+
+.theme-toggle:hover {
+  background-color: color-mix(in srgb, var(--accent-color), transparent 20%);
+  color: var(--contrast-color);
+}
+
+#scroll-top.active + .theme-toggle {
+  right: 70px;
+}
+
+/*--------------------------------------------------------------
 # Disable aos animation delay on mobile devices
 --------------------------------------------------------------*/
 @media screen and (max-width: 768px) {
@@ -528,7 +561,8 @@ section,
   justify-content: center;
 }
 
-.hero img {
+.hero img,
+.hero canvas#hero-canvas {
   position: absolute;
   inset: 0;
   display: block;
@@ -540,10 +574,16 @@ section,
 
 .hero:before {
   content: "";
-  background: color-mix(in srgb, var(--background-color), transparent 25%);
+  background: rgba(0, 0, 0, 0.55);
   position: absolute;
   inset: 0;
   z-index: 2;
+}
+
+/* The light hero uses its own canvas palette, so a dark overlay would
+   turn the intended white background grey and hide its text. */
+.light-background .hero:before {
+  background: rgba(255, 255, 255, 0.18);
 }
 
 .hero .container {
@@ -1517,4 +1557,12 @@ section,
 .resume-entry li {
   margin: 0;
   font-size: 0.95rem;
+}
+
+/* Portfolio GIF preview hover transition */
+.portfolio-item img[data-gif] {
+  transition: opacity 0.2s ease;
+}
+.portfolio-item img[data-gif]:hover {
+  opacity: 0.85;
 }
