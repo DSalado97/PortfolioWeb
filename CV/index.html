@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Currículum profesional de Daniel Salado Romero.">
+    <title>CV | Daniel Salado Romero</title>
+    <link rel="stylesheet" href="cv.css">
+  </head>
+  <body>
+    <main class="cv">
+      <header class="hero">
+        <img class="profile-image" src="../assets/img/profile-img.png" alt="Retrato de Daniel Salado Romero">
+        <div>
+          <h1 data-name>Daniel Salado Romero</h1>
+          <p class="role" data-title>Desarrollador Full Stack</p>
+          <p class="location" data-location>Sevilla, España</p>
+          <nav class="contact-links" aria-label="Datos de contacto" data-contact-links></nav>
+        </div>
+      </header>
+
+      <section class="intro" aria-labelledby="perfil-title">
+        <h2 id="perfil-title">Perfil</h2>
+        <p data-summary>Actualiza los datos del CV para mostrar el perfil profesional.</p>
+      </section>
+
+      <div class="cv-content">
+        <section class="experience-section" aria-labelledby="experience-title">
+          <h2 id="experience-title">Experiencia profesional</h2>
+          <div class="timeline" data-experience></div>
+        </section>
+
+        <aside class="side-column">
+          <section aria-labelledby="skills-title">
+            <h2 id="skills-title">Tecnologías</h2>
+            <div class="skills" data-skills></div>
+          </section>
+
+          <section aria-labelledby="education-title">
+            <h2 id="education-title">Formación académica</h2>
+            <div class="education" data-education></div>
+          </section>
+        </aside>
+      </div>
+    </main>
+    <p class="update-error">No se han encontrado los datos. Ejecuta <code>node actualizar-cv.js</code> desde esta carpeta.</p>
+    <script src="datos-cv.js"></script>
+    <script src="cv.js"></script>
+  </body>
+</html>
