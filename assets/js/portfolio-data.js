@@ -135,7 +135,10 @@
       item.appendChild(title);
 
       const content = createElement('div', null, 'resume-item toggle-content');
-      (category.items || []).forEach(skill => {
+      const sortedItems = [...(category.items || [])].sort((first, second) =>
+        String(first.nombre || '').localeCompare(String(second.nombre || ''), 'es', { sensitivity: 'base' })
+      );
+      sortedItems.forEach(skill => {
         const entry = createElement('div', null, 'resume-entry');
         if (skill.nombre) {
           entry.appendChild(createElement('h4', skill.nombre));
