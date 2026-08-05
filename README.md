@@ -26,13 +26,11 @@ portfolio-web/
 ├── .env.example                         # Configuración local de MongoDB
 ├── assets/
 │   ├── css/
-│   │   ├── main.css                    # Estilos principales
-│   │   └── chatbot.css                 # Estilos del chatbot asistente
+│   │   └── main.css                    # Estilos principales
 │   ├── js/
 │   │   ├── main.js                     # Interactividad y librerías vendor
 │   │   ├── api-config.js                # URL pública de la API
-│   │   ├── portfolio-data.js            # Renderizado de datos desde la API
-│   │   └── chatbot.js                  # Asistente virtual (Chipp.ai)
+│   │   └── portfolio-data.js            # Renderizado de datos desde la API
 │   ├── img/                            # Imágenes y recursos
 │   └── vendor/                         # Librerías de terceros
 │       ├── bootstrap/

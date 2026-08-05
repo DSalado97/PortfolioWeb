@@ -44,7 +44,6 @@
 
     <nav id="navmenu" class="navmenu">
       <ul>
-        <li><a href="#" id="toggle-theme"><i class="bi bi-moon navicon"></i><span>Modo oscuro</span></a></li>
         <li><a href="index.html#hero" class="active"><i class="bi bi-house navicon"></i><span>Inicio</span></a></li>
         <li><a href="index.html#about"><i class="bi bi-person navicon"></i><span>Sobre mí</span></a></li>
         <li><a href="index.html#portfolio"><i class="bi bi-file-earmark-code navicon"></i><span>Portafolio</span></a></li>
@@ -143,6 +142,12 @@
   <!-- Scroll Top -->
   <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
+  <!-- Selector de tema -->
+  <button type="button" id="toggle-theme" class="theme-toggle d-flex align-items-center justify-content-center"
+    aria-label="Cambiar a modo oscuro" title="Cambiar a modo oscuro">
+    <i class="bi bi-moon" aria-hidden="true"></i>
+  </button>
+
   <!-- Preloader -->
   <div id="preloader"></div>
 
@@ -163,10 +168,6 @@
   <script src="assets/js/portfolio-data.js"></script>
   <script src="assets/js/main.js"></script>
   
-  <!-- Chatbot -->
-  <link rel="stylesheet" href="./assets/css/chatbot.css">
-  <script src="./assets/js/chatbot.js" defer></script>  
-
 </body>
 
 </html>

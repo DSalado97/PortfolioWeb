@@ -50,20 +50,22 @@
   /**
    * Scroll top button
    */
-  let scrollTop = document.querySelector('.scroll-top');
+  const scrollTop = document.querySelector('.scroll-top');
 
   function toggleScrollTop() {
     if (scrollTop) {
       window.scrollY > 100 ? scrollTop.classList.add('active') : scrollTop.classList.remove('active');
     }
   }
-  scrollTop.addEventListener('click', (e) => {
-    e.preventDefault();
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
+  if (scrollTop) {
+    scrollTop.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
     });
-  });
+  }
 
   window.addEventListener('load', toggleScrollTop);
   document.addEventListener('scroll', toggleScrollTop);
@@ -258,8 +260,10 @@
   */
   function toggleTheme(forceTheme = null) {
     const body = document.body;
-    const icon = document.querySelector("#toggle-theme i");
-    const span = document.querySelector("#toggle-theme span");
+    const toggleThemeButton = document.querySelector("#toggle-theme");
+    const icon = toggleThemeButton?.querySelector("i");
+
+    if (!toggleThemeButton || !icon) return;
 
     let isDark = body.classList.contains("dark-background");
 
@@ -274,20 +278,22 @@
       body.classList.remove("light-background");
       icon.classList.remove("bi-moon");
       icon.classList.add("bi-sun");
-      span.textContent = "Modo claro";
+      toggleThemeButton.setAttribute("aria-label", "Cambiar a modo claro");
+      toggleThemeButton.title = "Cambiar a modo claro";
       localStorage.setItem("theme", "dark");
     } else {
       body.classList.add("light-background");
       body.classList.remove("dark-background");
       icon.classList.remove("bi-sun");
       icon.classList.add("bi-moon");
-      span.textContent = "Modo oscuro";
+      toggleThemeButton.setAttribute("aria-label", "Cambiar a modo oscuro");
+      toggleThemeButton.title = "Cambiar a modo oscuro";
       localStorage.setItem("theme", "light");
     }
 
   }
 
-  window.onload = () => {
+  window.addEventListener('load', () => {
     const toggleThemeButton = document.getElementById("toggle-theme");
     if (toggleThemeButton) {
       toggleThemeButton.addEventListener("click", function (event) {
@@ -298,7 +304,7 @@
 
     const savedTheme = localStorage.getItem("theme") || "light";
     toggleTheme(savedTheme);
-  };
+  });
 
   document.querySelectorAll('.toggle-title').forEach(title => {
     title.addEventListener('click', () => {
