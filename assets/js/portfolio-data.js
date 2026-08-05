@@ -153,7 +153,7 @@
   }
 
   function renderResume(portfolio) {
-    const renderEntries = (selector, entries, titleKey, placeKey, detailsKey) => {
+    const renderEntries = (selector, entries, titleKey, placeKey, detailsKey, achievementsKey = null) => {
       const container = document.querySelector(selector);
       if (!container) {
         return;
@@ -169,11 +169,25 @@
         const place = [entry[placeKey], entry.ubicacion].filter(Boolean).join(' - ');
         item.appendChild(createElement('p')).appendChild(createElement('em', place));
         addList(item, entry[detailsKey] || entry.responsabilidades);
+
+        const achievementsValue = achievementsKey ? entry[achievementsKey] : null;
+        const achievements = Array.isArray(achievementsValue)
+          ? achievementsValue.filter(Boolean)
+          : achievementsValue ? [achievementsValue] : [];
+        if (achievements.length) {
+          const achievementsSection = createElement('div', null, 'resume-achievements');
+          achievementsSection.appendChild(createElement('h5', 'Logros'));
+          Array.isArray(achievementsValue)
+            ? addList(achievementsSection, achievements)
+            : addParagraphs(achievementsSection, achievements);
+          item.appendChild(achievementsSection);
+        }
+
         container.appendChild(item);
       });
     };
 
-    renderEntries('[data-portfolio-experience]', portfolio.experiencia, 'puesto', 'empresa', 'responsabilidades');
+    renderEntries('[data-portfolio-experience]', portfolio.experiencia, 'puesto', 'empresa', 'responsabilidades', 'logros');
     renderEntries('[data-portfolio-education]', portfolio.formacion, 'titulo', 'centro', 'detalles');
   }
 
