@@ -44,8 +44,8 @@ async function getDatabase() {
   return client.db(databaseName);
 }
 
-async function readCollection(database, collectionName) {
-  return database.collection(collectionName).find({}).sort({ _id: 1 }).toArray();
+async function readCollection(database, collectionName, sort = { _id: 1 }) {
+  return database.collection(collectionName).find({}).sort(sort).toArray();
 }
 
 async function readPortfolio() {
@@ -54,7 +54,7 @@ async function readPortfolio() {
     database.collection('perfil').findOne({}),
     readCollection(database, 'proyectos'),
     readCollection(database, 'habilidades'),
-    readCollection(database, 'experiencia'),
+    readCollection(database, 'experiencia', { _id: -1 }),
     readCollection(database, 'formacion'),
     database.collection('contacto').findOne({})
   ]);
