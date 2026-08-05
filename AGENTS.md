@@ -24,11 +24,11 @@ portfolio-web/
 ├── portfolio-details-*.html        # Páginas de detalle de proyectos
 ├── assets/
 │   ├── css/
-│   │   ├── main.css                # Estilos principales
-│   │   └── chatbot.css             # Estilos del chatbot
+│   │   └── main.css                # Estilos principales
 │   ├── js/
 │   │   ├── main.js                 # Lógica principal
-│   │   └── chatbot.js              # Asistente virtual (Chipp.ai)
+│   │   ├── api-config.js            # Configuración de la API
+│   │   └── portfolio-data.js        # Carga de datos del portfolio
 │   ├── img/                        # Imágenes y recursos visuales
 │   └── vendor/                     # Librerías de terceros (no modificar)
 ├── robots.txt
