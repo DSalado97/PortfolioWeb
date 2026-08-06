@@ -96,8 +96,16 @@
     }
     container.replaceChildren();
 
+    // Algunos nombres de proyecto no coinciden con el nombre del fichero de
+    // detalle (p. ej. "Portafolio Web" -> portfolio-details-portfolio.html).
+    const DETAIL_FILE_ALIASES = {
+      'portafolio-web': 'portfolio',
+      'portfolio-web': 'portfolio'
+    };
+
     (projects || []).forEach(project => {
       const slug = project.slug || project.nombre.toLowerCase().replace(/\s+/g, '-');
+      const detailSlug = DETAIL_FILE_ALIASES[slug] || slug;
       const category = String(project.categoria || '').toLowerCase();
       const item = createElement('div', null, `col-lg-4 col-md-6 portfolio-item isotope-item ${category === 'web' ? 'filter-web' : 'filter-games'}`);
       const image = createElement('img', null, 'img-fluid');
@@ -110,7 +118,7 @@
       info.appendChild(createElement('h4', project.nombre));
       info.appendChild(createElement('p', project.descripcion_corta));
       const detailsLink = createElement('a', null, 'details-link');
-      detailsLink.href = `portfolio-details-${slug}.html`;
+      detailsLink.href = `portfolio-details-${detailSlug}.html`;
       detailsLink.title = 'Más detalles';
       detailsLink.setAttribute('aria-label', `Más detalles sobre ${project.nombre}`);
       detailsLink.appendChild(createElement('i', null, 'bi bi-info-circle'));
