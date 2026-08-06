@@ -583,7 +583,7 @@ section,
 /* The light hero uses its own canvas palette, so a dark overlay would
    turn the intended white background grey and hide its text. */
 .light-background .hero:before {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.35);
 }
 
 .hero .container {
@@ -622,6 +622,34 @@ section,
 
 .hero .social-links a:hover {
   color: var(--accent-color);
+}
+
+/* === MODO CLARO: MAYOR CONTRASTE PARA TÍTULO, TEXTO E ICONOS === */
+.light-background .hero h2 {
+  color: #0f1114;
+}
+
+.light-background .hero p {
+  color: #1c1f23;
+}
+
+.light-background .hero .social-links a {
+  color: #14181c;
+}
+
+.light-background .navmenu a,
+.light-background .navmenu a:focus {
+  color: #1a1d21;
+  background: color-mix(in srgb, var(--default-color), transparent 86%);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.light-background .navmenu a:hover,
+.light-background .navmenu .active,
+.light-background .navmenu .active:focus,
+.light-background .navmenu li:hover>a {
+  color: var(--contrast-color);
+  background: var(--nav-hover-color);
 }
 
 @media (max-width: 768px) {
