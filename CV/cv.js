@@ -33,7 +33,8 @@
       ['Correo', profile.email || contact.email, 'mailto:'],
       ['Teléfono', profile.telefono || contact.telefono, 'tel:'],
       ['LinkedIn', profile.redes?.linkedin || contact.linkedin, ''],
-      ['GitHub', profile.redes?.github || contact.github, '']
+      ['GitHub', profile.redes?.github || contact.github, ''],
+      ['Portfolio', 'https://portfolio-web-daniel.onrender.com/', '']
     ].filter(([, value]) => value);
 
     links.forEach(([label, value, protocol]) => {
