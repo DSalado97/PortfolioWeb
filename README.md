@@ -2,9 +2,9 @@
 
 Portafolio profesional online que muestra mi trayectoria como Desarrollador Full Stack, proyectos realizados, habilidades técnicas y formación académica.
 
-🌐 **[Ver en vivo](https://dsalado97.github.io/PortfolioWeb/)**
+**[Ver en vivo](https://dsalado97.github.io/PortfolioWeb/)**
 
-## 🛠️ Stack
+## Stack
 
 - **HTML5** semántico y accesible
 - **CSS3** con variables personalizadas y modo oscuro
@@ -13,7 +13,7 @@ Portafolio profesional online que muestra mi trayectoria como Desarrollador Full
 - **Librerías**: AOS (animaciones), Typed.js (texto animado), Isotope (filtrado de portfolio), Swiper (sliders), GLightbox, PureCounter
 - **Backend**: Node.js, Express y driver oficial de MongoDB
 
-## 📂 Estructura
+## Estructura
 
 ```
 portfolio-web/
@@ -47,7 +47,7 @@ portfolio-web/
 └── .gitignore
 ```
 
-## 🗄️ Conexión con MongoDB
+## Conexión con MongoDB
 
 La web ya no lee el contenido del HTML como fuente de datos. Al cargarla, el navegador solicita los datos a `GET /api/portfolio`; el servidor consulta las colecciones `perfil`, `proyectos`, `habilidades`, `experiencia`, `formacion` y `contacto` de MongoDB.
 
@@ -90,11 +90,11 @@ El script migra `perfil`, `proyectos`, `habilidades`, `experiencia`, `formacion`
 
 No publiques nunca `.env` ni una URI con usuario y contraseña en los archivos HTML o JavaScript.
 
-## 🚀 Despliegue
+## Despliegue
 
 El sitio se despliega automáticamente en **GitHub Pages** desde la rama `main`.
 
-## 📄 Licencia
+## Licencia
 
 El template base es [MyResume](https://bootstrapmade.com/free-html-bootstrap-template-my-resume/) de BootstrapMade, bajo su [licencia](https://bootstrapmade.com/license/). El contenido del portfolio es propio.
 
