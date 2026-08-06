@@ -340,8 +340,9 @@
     const LAND_CHAR_COLOR = '#ffffff';
     const SEA_CHAR_COLOR = '#4a4a4a';
     const BACKGROUND_COLOR = '#000000';
-    const LIGHT_LAND_CHAR_COLOR = '#111111';
-    const LIGHT_SEA_CHAR_COLOR = '#747474';
+    // Modo claro: dígitos suavizados para que el título y los iconos resalten.
+    const LIGHT_LAND_CHAR_COLOR = '#6e6e6e';
+    const LIGHT_SEA_CHAR_COLOR = '#bcbcbc';
     const LIGHT_BACKGROUND_COLOR = '#ffffff';
     // A file:// page cannot read pixels from an external image in a canvas.
     // Keep a local copy of the mask only for that case so double-clicking
