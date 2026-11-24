@@ -69,6 +69,21 @@ async function readPortfolio() {
   };
 }
 
+// La lectura completa del portfolio se cachea unos minutos para no consultar
+// MongoDB en cada petición (y que el plan gratuito de Render responda antes).
+const PORTFOLIO_CACHE_TTL_MS = 5 * 60 * 1000;
+let portfolioCache = { value: null, expiresAt: 0 };
+
+async function getCachedPortfolio() {
+  if (portfolioCache.value && Date.now() < portfolioCache.expiresAt) {
+    return portfolioCache.value;
+  }
+  const value = await readPortfolio();
+  portfolioCache = { value, expiresAt: Date.now() + PORTFOLIO_CACHE_TTL_MS };
+  return value;
+}
+
+app.disable('x-powered-by');
 app.use(express.json());
 app.use(configureCors);
 app.use('/api', (request, response, next) => {
@@ -89,7 +104,7 @@ app.get('/api/health', async (request, response) => {
 
 app.get('/api/portfolio', async (request, response) => {
   try {
-    response.json(await readPortfolio());
+    response.json(await getCachedPortfolio());
   } catch (error) {
     console.error('No se pudo leer el portfolio:', error.message);
     response.status(503).json({ error: 'No se han podido cargar los datos del portfolio' });
@@ -98,7 +113,7 @@ app.get('/api/portfolio', async (request, response) => {
 
 app.get('/api/portfolio/projects/:slug', async (request, response) => {
   try {
-    const portfolio = await readPortfolio();
+    const portfolio = await getCachedPortfolio();
     const project = portfolio.proyectos.find(item => item.slug === request.params.slug);
     if (!project) {
       return response.status(404).json({ error: 'Proyecto no encontrado' });
@@ -110,15 +125,29 @@ app.get('/api/portfolio/projects/:slug', async (request, response) => {
   }
 });
 
-app.use((request, response, next) => {
-  const blockedFiles = new Set(['/server.js', '/package.json', '/package-lock.json', '/.env', '/.env.example']);
-  if (blockedFiles.has(request.path)) {
-    return response.sendStatus(404);
-  }
-  next();
-});
+// Solo se sirven archivos públicos: las páginas HTML de la raíz, robots/sitemap
+// y la carpeta assets. Nada de node_modules, scripts, .env, AGENTS.md, etc.
+const publicRootFiles = /^\/(index\.html|404\.html|portfolio-details-[a-z0-9-]+\.html|robots\.txt|sitemap\.xml)$/;
 
-app.use(express.static(path.join(__dirname)));
+app.get('/', (request, response) => {
+  response.sendFile(path.join(__dirname, 'index.html'));
+});
+app.get(publicRootFiles, (request, response) => {
+  response.sendFile(path.join(__dirname, request.path));
+});
+app.use('/assets', express.static(path.join(__dirname, 'assets'), { index: false, dotfiles: 'ignore' }));
+
+// La versión imprimible del CV solo se sirve en local (contiene datos de contacto).
+if (process.env.NODE_ENV !== 'production') {
+  app.use('/CV', express.static(path.join(__dirname, 'CV'), { dotfiles: 'ignore' }));
+}
+
+app.use((request, response) => {
+  if (request.path.startsWith('/api/')) {
+    return response.status(404).json({ error: 'Recurso no encontrado' });
+  }
+  response.status(404).sendFile(path.join(__dirname, '404.html'));
+});
 
 app.use((error, request, response, next) => {
   console.error(error);
