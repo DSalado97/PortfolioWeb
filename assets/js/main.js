@@ -338,6 +338,64 @@
       return window.innerWidth < MOBILE_BREAKPOINT;
     }
 
+    // Algunos navegadores (p. ej. Firefox con protección contra fingerprinting)
+    // bloquean o alteran getImageData(). Se comprueba con un píxel conocido.
+    function canReadCanvasPixels() {
+      try {
+        const probe = document.createElement('canvas');
+        probe.width = 1;
+        probe.height = 1;
+        const pCtx = probe.getContext('2d');
+        pCtx.fillStyle = 'rgb(200, 40, 90)';
+        pCtx.fillRect(0, 0, 1, 1);
+        const px = pCtx.getImageData(0, 0, 1, 1).data;
+        return Math.abs(px[0] - 200) <= 8 && Math.abs(px[1] - 40) <= 8 && Math.abs(px[2] - 90) <= 8 && px[3] === 255;
+      } catch (error) {
+        return false;
+      }
+    }
+
+    // Devuelve { width, height, isLand(x, y) }. Se lee hero-bg.jpg; si el canvas no
+    // se puede leer, se usa assets/data/hero-mask.json (la misma máscara precalculada).
+    function loadLandMask(image) {
+      if (canReadCanvasPixels()) {
+        try {
+          const off = document.createElement('canvas');
+          const oCtx = off.getContext('2d');
+          off.width = image.width;
+          off.height = image.height;
+          oCtx.drawImage(image, 0, 0);
+          const imageData = oCtx.getImageData(0, 0, off.width, off.height).data;
+          return Promise.resolve({
+            width: image.width,
+            height: image.height,
+            isLand: function (ix, iy) {
+              const idx = (iy * image.width + ix) * 4; // RGBA stride
+              return (imageData[idx] + imageData[idx + 1] + imageData[idx + 2]) / 3 < 128;
+            }
+          });
+        } catch (error) {
+          // Se continúa con la máscara precalculada.
+        }
+      }
+      return fetch('assets/data/hero-mask.json')
+        .then(function (response) { return response.json(); })
+        .then(function (data) {
+          const bytes = Uint8Array.from(atob(data.bits), function (char) { return char.charCodeAt(0); });
+          return {
+            width: data.width,
+            height: data.height,
+            isLand: function (ix, iy) {
+              const bit = iy * data.width + ix;
+              return ((bytes[bit >> 3] >> (7 - (bit & 7))) & 1) === 1;
+            }
+          };
+        })
+        .catch(function () {
+          return { width: 1, height: 1, isLand: function () { return false; } };
+        });
+    }
+
     function buildMatrix() {
       if (isMobileScreen()) {
         buildRain();
@@ -350,46 +408,37 @@
           buildRain();
           return;
         }
-        // Draw mask to offscreen canvas to read pixel data
-        const off = document.createElement('canvas');
-        const oCtx = off.getContext('2d');
-        off.width = img.width;
-        off.height = img.height;
-        oCtx.drawImage(img, 0, 0);
-
-        // Get the full pixel buffer once
-        const imageData = oCtx.getImageData(0, 0, off.width, off.height).data;
-
-        const cols = Math.floor(heroCanvas.width / charWidth);
-        const rows = Math.floor(heroCanvas.height / FONT_SIZE);
-
-        cells = [];
-
-        for (let row = 0; row < rows; row++) {
-          for (let col = 0; col < cols; col++) {
-            // Map grid position to image position
-            const ix = Math.floor((col / cols) * img.width);
-            const iy = Math.floor((row / rows) * img.height);
-            const idx = (iy * img.width + ix) * 4; // RGBA stride
-            const r = imageData[idx];
-            const g = imageData[idx + 1];
-            const b = imageData[idx + 2];
-            const brightness = (r + g + b) / 3;
-
-            // The grid always covers the whole hero. The mask only decides
-            // whether this digit belongs to bright land or dark sea.
-            cells.push({
-              x: col * charWidth,
-              y: row * FONT_SIZE,
-              char: Math.random() < 0.5 ? '0' : '1',
-              isLand: brightness < 128,
-              nextFlip: performance.now() + 1000 + Math.random() * 4000
-            });
+        loadLandMask(img).then(function (mask) {
+          if (isMobileScreen()) {
+            buildRain();
+            return;
           }
-        }
+          const cols = Math.floor(heroCanvas.width / charWidth);
+          const rows = Math.floor(heroCanvas.height / FONT_SIZE);
 
-        render();
-        startAnimation();
+          cells = [];
+
+          for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols; col++) {
+              // Map grid position to mask position
+              const ix = Math.floor((col / cols) * mask.width);
+              const iy = Math.floor((row / rows) * mask.height);
+
+              // The grid always covers the whole hero. The mask only decides
+              // whether this digit belongs to bright land or dark sea.
+              cells.push({
+                x: col * charWidth,
+                y: row * FONT_SIZE,
+                char: Math.random() < 0.5 ? '0' : '1',
+                isLand: mask.isLand(ix, iy),
+                nextFlip: performance.now() + 1000 + Math.random() * 4000
+              });
+            }
+          }
+
+          render();
+          startAnimation();
+        });
       };
       img.onerror = function () {
         // Fallback: render the dark sea pattern across the whole canvas.
