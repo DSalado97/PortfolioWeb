@@ -10,6 +10,10 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
+    "snapshot": "node scripts/exportar-snapshot.js && node scripts/sincronizar-html.js",
+    "sincronizar": "node scripts/sincronizar-html.js",
+    "verificar": "node scripts/verificar.js",
+    "actualizar:mongo": "node scripts/actualizar-mongo.js",
     "migrate:atlas": "node scripts/migrate-to-atlas.js"
   },
   "dependencies": {
