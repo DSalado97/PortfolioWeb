@@ -42,3 +42,6 @@ assets/scss/
 
 # Logs
 *.log
+
+# Índice local de CodeGraph
+.codegraph/
