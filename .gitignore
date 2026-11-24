@@ -45,3 +45,6 @@ assets/scss/
 
 # Índice local de CodeGraph
 .codegraph/
+
+# Versión imprimible del CV (contiene datos personales)
+CV/
