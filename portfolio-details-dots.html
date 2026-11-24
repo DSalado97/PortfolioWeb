@@ -4,6 +4,23 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <!-- Tema: se aplica antes del primer pintado para evitar el parpadeo (único script inline). -->
+  <script>
+    (function aplicarTemaInicial() {
+      let temaGuardado = null;
+      try {
+        temaGuardado = localStorage.getItem('theme');
+      } catch (error) {
+        temaGuardado = null;
+      }
+      const esOscuro = temaGuardado
+        ? temaGuardado === 'dark'
+        : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.classList.add(esOscuro ? 'dark-background' : 'light-background');
+    })();
+  </script>
+
   <link rel="canonical" href="https://dsalado97.github.io/PortfolioWeb/portfolio-details-dots.html">
   <title>DSR - Detalles Dots</title>
   <meta name="description" content="Dots: juego móvil inspirado en Agar.io para Android desarrollado con Java. Controla tu punto, absorbe los pequeños y evita los grandes para lograr la máxima puntuación.">
@@ -11,9 +28,11 @@
   <meta property="og:title" content="Dots — Portafolio Daniel Salado">
   <meta property="og:description" content="Juego móvil inspirado en Agar.io: consume puntos, crece y supera niveles infinitos. Desarrollado con Java en Android Studio.">
   <meta property="og:type" content="article">
+  <meta property="og:locale" content="es_ES">
   <meta property="og:url" content="https://dsalado97.github.io/PortfolioWeb/portfolio-details-dots.html">
-  <meta property="og:image" content="https://dsalado97.github.io/PortfolioWeb/assets/img/masonry-portfolio/Dots.png">
-  <meta name="twitter:card" content="summary">
+  <meta property="og:image" content="https://dsalado97.github.io/PortfolioWeb/assets/img/projects/dots.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://dsalado97.github.io/PortfolioWeb/assets/img/projects/dots.jpg">
 
   <!-- Favicons -->
   <link href="assets/img/favicon-dsr-16.png" rel="icon" sizes="16x16" type="image/png">
@@ -23,51 +42,73 @@
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com" rel="preconnect">
   <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&amp;family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&amp;family=Raleway:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&amp;display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;1,400&amp;family=Poppins:wght@400&amp;family=Raleway:wght@500;600;700&amp;display=swap"
+    rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
   <link href="assets/vendor/aos/aos.css" rel="stylesheet">
-  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
-  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
 
   <!-- Main CSS File -->
   <link href="assets/css/main.css" rel="stylesheet">
 
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CreativeWork",
+  "name": "Dots",
+  "description": "Dots: juego móvil inspirado en Agar.io para Android desarrollado con Java. Controla tu punto, absorbe los pequeños y evita los grandes para lograr la máxima puntuación.",
+  "url": "https://dsalado97.github.io/PortfolioWeb/portfolio-details-dots.html",
+  "image": "https://dsalado97.github.io/PortfolioWeb/assets/img/projects/dots.jpg",
+  "inLanguage": "es",
+  "author": {
+    "@type": "Person",
+    "name": "Daniel Salado Romero",
+    "url": "https://dsalado97.github.io/PortfolioWeb/"
+  },
+  "sameAs": [
+    "https://github.com/DSalado97/RepositorioDots"
+  ]
+}
+  </script>
 </head>
 
-<body class="portfolio-details-page" data-project-slug="dots" data-api-base-url="">
+<body class="portfolio-details-page">
+
+  <a class="skip-link" href="#main-content">Saltar al contenido</a>
 
   <header id="header" class="header d-flex flex-column justify-content-center">
 
-    <i class="header-toggle d-xl-none bi bi-list"></i>
+    <button type="button" class="header-toggle d-xl-none" aria-label="Abrir menú de navegación" aria-expanded="false"
+      aria-controls="navmenu"><i class="bi bi-list" aria-hidden="true"></i></button>
 
-    <nav id="navmenu" class="navmenu">
+    <nav id="navmenu" class="navmenu" aria-label="Principal">
       <ul>
-        <li><a href="index.html#hero" class="active"><i class="bi bi-house navicon"></i><span>Inicio</span></a></li>
-        <li><a href="index.html#about"><i class="bi bi-person navicon"></i><span>Sobre mí</span></a></li>
-        <li><a href="index.html#portfolio"><i class="bi bi-file-earmark-code navicon"></i><span>Portafolio</span></a></li>
-        <li><a href="index.html#skills"><i class="bi bi-laptop navicon"></i><span>Tecnologías</span></a></li>
-        <li><a href="index.html#resume"><i class="bi bi-file-earmark-text navicon"></i><span>Curriculum Vitae</span></a></li>
-        <li><a href="index.html#contact"><i class="bi bi-envelope navicon"></i><span>Contacto</span></a></li>
+        <li><a href="index.html#hero"><i class="bi bi-house navicon" aria-hidden="true"></i><span>Inicio</span></a></li>
+        <li><a href="index.html#about"><i class="bi bi-person navicon" aria-hidden="true"></i><span>Sobre mí</span></a></li>
+        <li><a href="index.html#portfolio" class="active" aria-current="page"><i class="bi bi-file-earmark-code navicon" aria-hidden="true"></i><span>Portafolio</span></a></li>
+        <li><a href="index.html#skills"><i class="bi bi-laptop navicon" aria-hidden="true"></i><span>Tecnologías</span></a></li>
+        <li><a href="index.html#resume"><i class="bi bi-file-earmark-text navicon" aria-hidden="true"></i><span>Curriculum Vitae</span></a></li>
+        <li><a href="index.html#contact"><i class="bi bi-envelope navicon" aria-hidden="true"></i><span>Contacto</span></a></li>
       </ul>
     </nav>
 
   </header>
 
-  <main class="main">
+  <main class="main" id="main-content">
 
     <!-- Page Title -->
     <div class="page-title" data-aos="fade">
       <div class="container">
-        <nav class="breadcrumbs">
+        <nav class="breadcrumbs" aria-label="Ruta de navegación">
           <ol>
             <li><a href="index.html">Inicio</a></li>
-            <li class="current">Detalles Dots</li>
+            <li class="current" aria-current="page">Detalles Dots</li>
           </ol>
         </nav>
-        <h1 data-project-title>Más sobre la aplicación Dots</h1>
+        <h1>Más sobre la aplicación Dots</h1>
       </div>
     </div><!-- End Page Title -->
 
@@ -76,14 +117,10 @@
 
       <div class="container" data-aos="fade-up">
 
-        <div class="portfolio-details-slider swiper init-swiper">
-          
-        </div>
-
         <div class="row justify-content-between gy-4 mt-4">
 
           <div class="col-lg-8" data-aos="fade-up">
-            <div class="portfolio-description" data-project-description>
+            <div class="portfolio-description">
               <h2>Introducción</h2>
               <p>
                 El jugador es el punto blanco del centro de la pantalla. El juego consiste en mover el punto con el dedo por la pantalla para consumir los puntos pequeños, aumentando de tamaño tu punto y esquivar los grandes, que hacen que se acabe la partida.
@@ -133,25 +170,32 @@
               <p>
                 También pueden ver el código en el enlace al repositorio de Github.
               </p>
-
             </div>
           </div>
 
           <div class="col-lg-3" data-aos="fade-up" data-aos-delay="100">
-            <div class="portfolio-info" data-project-info>
+            <div class="portfolio-info">
               <h3>Información del proyecto</h3>
               <ul>
                 <li><strong>Categoría</strong>Multiplataforma</li>
                 <li><strong>IDE</strong>Android Studio</li>
                 <li><strong>Tecnologías</strong>
                   <div class="container">
-                    <img class="img-icon" src="assets/img/icons/android-icon.png"/><img class="img-icon" src="assets/img/icons/java-icon.png"/>
+                    <img class="img-icon" src="assets/img/icons/android-icon.webp" alt="Android" title="Android" width="100" height="100">
+                    <img class="img-icon" src="assets/img/icons/java-icon.webp" alt="Java" title="Java" width="74" height="100">
                   </div>
                 </li>
-                <li><strong>Repositorio</strong> <a href="https://github.com/DSalado97/RepositorioDots" target="_blank" rel="noopener noreferrer">Github</a></li>
-                <li><strong>Descargar</strong> <a href="https://drive.google.com/uc?export=download&id=1j0WqA5F9lQPxueyqBoaWvqUjHCcttsOb" target="_blank" rel="noopener noreferrer">Drive</a></li>
+                <li><strong>Repositorio</strong> <a href="https://github.com/DSalado97/RepositorioDots" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+                <li><strong>Descargar</strong> <a href="https://drive.google.com/uc?export=download&amp;id=1j0WqA5F9lQPxueyqBoaWvqUjHCcttsOb" target="_blank" rel="noopener noreferrer">Drive</a></li>
               </ul>
-              <img src="assets/img/masonry-portfolio/Dots.gif" class="img-gif" alt="" loading="lazy">
+            </div>
+            <div class="project-media">
+              <video class="project-video" autoplay muted loop playsinline preload="metadata"
+                poster="assets/img/projects/dots-poster.webp" width="530" height="1000"
+                aria-label="Vídeo de demostración de Dots, sin sonido">
+                <source src="assets/img/projects/dots.webm" type="video/webm">
+                <source src="assets/img/projects/dots.mp4" type="video/mp4">
+              </video>
             </div>
           </div>
 
@@ -164,34 +208,24 @@
   </main>
 
   <!-- Scroll Top -->
-  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+  <button type="button" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"
+    aria-label="Volver arriba"><i class="bi bi-arrow-up-short" aria-hidden="true"></i></button>
 
   <!-- Selector de tema -->
   <button type="button" id="toggle-theme" class="theme-toggle d-flex align-items-center justify-content-center"
-    aria-label="Cambiar a modo oscuro" title="Cambiar a modo oscuro">
+    aria-label="Modo oscuro" title="Modo oscuro" aria-pressed="false">
     <i class="bi bi-moon" aria-hidden="true"></i>
   </button>
 
   <!-- Preloader -->
-  <div id="preloader"></div>
+  <div id="preloader" aria-hidden="true"></div>
 
   <!-- Vendor JS Files -->
-  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="assets/vendor/php-email-form/validate.js"></script>
-  <script src="assets/vendor/aos/aos.js"></script>
-  <script src="assets/vendor/typed.js/typed.umd.js"></script>
-  <script src="assets/vendor/purecounter/purecounter_vanilla.js"></script>
-  <script src="assets/vendor/waypoints/noframework.waypoints.js"></script>
-  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
-  <script src="assets/vendor/imagesloaded/imagesloaded.pkgd.min.js"></script>
-  <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
-  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="assets/vendor/aos/aos.js" defer></script>
 
   <!-- Main JS File -->
-  <script src="assets/js/api-config.js"></script>
-  <script src="assets/js/portfolio-data.js"></script>
-  <script src="assets/js/main.js"></script>
-  
+  <script src="assets/js/main.js" defer></script>
+
 </body>
 
 </html>

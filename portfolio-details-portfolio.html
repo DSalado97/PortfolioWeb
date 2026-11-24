@@ -4,6 +4,23 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <!-- Tema: se aplica antes del primer pintado para evitar el parpadeo (único script inline). -->
+  <script>
+    (function aplicarTemaInicial() {
+      let temaGuardado = null;
+      try {
+        temaGuardado = localStorage.getItem('theme');
+      } catch (error) {
+        temaGuardado = null;
+      }
+      const esOscuro = temaGuardado
+        ? temaGuardado === 'dark'
+        : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.classList.add(esOscuro ? 'dark-background' : 'light-background');
+    })();
+  </script>
+
   <link rel="canonical" href="https://dsalado97.github.io/PortfolioWeb/portfolio-details-portfolio.html">
   <title>DSR - Detalles Web</title>
   <meta name="description" content="Detalles del portafolio web de Daniel Salado: diseño, tecnologías, estructura y funcionamiento interno. Construido con HTML5, CSS3, Bootstrap 5 y JavaScript.">
@@ -11,9 +28,11 @@
   <meta property="og:title" content="Portafolio Web — Portafolio Daniel Salado">
   <meta property="og:description" content="Detalles técnicos del portafolio: stack HTML/CSS/JS/Bootstrap, animaciones AOS, filtrado Isotope y diseño responsive.">
   <meta property="og:type" content="article">
+  <meta property="og:locale" content="es_ES">
   <meta property="og:url" content="https://dsalado97.github.io/PortfolioWeb/portfolio-details-portfolio.html">
-  <meta property="og:image" content="https://dsalado97.github.io/PortfolioWeb/assets/img/masonry-portfolio/portfolio.jpg">
-  <meta name="twitter:card" content="summary">
+  <meta property="og:image" content="https://dsalado97.github.io/PortfolioWeb/assets/img/projects/portfolio.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://dsalado97.github.io/PortfolioWeb/assets/img/projects/portfolio.jpg">
 
   <!-- Favicons -->
   <link href="assets/img/favicon-dsr-16.png" rel="icon" sizes="16x16" type="image/png">
@@ -24,49 +43,69 @@
   <link href="https://fonts.googleapis.com" rel="preconnect">
   <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&amp;family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&amp;family=Raleway:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&amp;display=swap"
+    href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;1,400&amp;family=Poppins:wght@400&amp;family=Raleway:wght@500;600;700&amp;display=swap"
     rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
   <link href="assets/vendor/aos/aos.css" rel="stylesheet">
-  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
-  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
 
   <!-- Main CSS File -->
   <link href="assets/css/main.css" rel="stylesheet">
 
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CreativeWork",
+  "name": "Portafolio Web",
+  "description": "Detalles del portafolio web de Daniel Salado: diseño, tecnologías, estructura y funcionamiento interno. Construido con HTML5, CSS3, Bootstrap 5 y JavaScript.",
+  "url": "https://dsalado97.github.io/PortfolioWeb/portfolio-details-portfolio.html",
+  "image": "https://dsalado97.github.io/PortfolioWeb/assets/img/projects/portfolio.jpg",
+  "inLanguage": "es",
+  "author": {
+    "@type": "Person",
+    "name": "Daniel Salado Romero",
+    "url": "https://dsalado97.github.io/PortfolioWeb/"
+  },
+  "sameAs": [
+    "https://github.com/DSalado97/PortfolioWeb"
+  ]
+}
+  </script>
 </head>
 
-<body class="portfolio-details-page" data-api-base-url="">
+<body class="portfolio-details-page">
+
+  <a class="skip-link" href="#main-content">Saltar al contenido</a>
 
   <header id="header" class="header d-flex flex-column justify-content-center">
 
-    <i class="header-toggle d-xl-none bi bi-list"></i>
+    <button type="button" class="header-toggle d-xl-none" aria-label="Abrir menú de navegación" aria-expanded="false"
+      aria-controls="navmenu"><i class="bi bi-list" aria-hidden="true"></i></button>
 
-    <nav id="navmenu" class="navmenu">
+    <nav id="navmenu" class="navmenu" aria-label="Principal">
       <ul>
-        <li><a href="index.html#hero" class="active"><i class="bi bi-house navicon"></i><span>Inicio</span></a></li>
-        <li><a href="index.html#about"><i class="bi bi-person navicon"></i><span>Sobre mí</span></a></li>
-        <li><a href="index.html#portfolio"><i class="bi bi-file-earmark-code navicon"></i><span>Portafolio</span></a></li>
-        <li><a href="index.html#skills"><i class="bi bi-laptop navicon"></i><span>Tecnologías</span></a></li>
-        <li><a href="index.html#resume"><i class="bi bi-file-earmark-text navicon"></i><span>Curriculum Vitae</span></a></li>
-        <li><a href="index.html#contact"><i class="bi bi-envelope navicon"></i><span>Contacto</span></a></li>
+        <li><a href="index.html#hero"><i class="bi bi-house navicon" aria-hidden="true"></i><span>Inicio</span></a></li>
+        <li><a href="index.html#about"><i class="bi bi-person navicon" aria-hidden="true"></i><span>Sobre mí</span></a></li>
+        <li><a href="index.html#portfolio" class="active" aria-current="page"><i class="bi bi-file-earmark-code navicon" aria-hidden="true"></i><span>Portafolio</span></a></li>
+        <li><a href="index.html#skills"><i class="bi bi-laptop navicon" aria-hidden="true"></i><span>Tecnologías</span></a></li>
+        <li><a href="index.html#resume"><i class="bi bi-file-earmark-text navicon" aria-hidden="true"></i><span>Curriculum Vitae</span></a></li>
+        <li><a href="index.html#contact"><i class="bi bi-envelope navicon" aria-hidden="true"></i><span>Contacto</span></a></li>
       </ul>
     </nav>
 
   </header>
 
-  <main class="main">
+  <main class="main" id="main-content">
 
     <!-- Page Title -->
     <div class="page-title" data-aos="fade">
       <div class="container">
-        <nav class="breadcrumbs">
+        <nav class="breadcrumbs" aria-label="Ruta de navegación">
           <ol>
             <li><a href="index.html">Inicio</a></li>
-            <li class="current">Detalles Portfolio Web</li>
+            <li class="current" aria-current="page">Detalles Portfolio Web</li>
           </ol>
         </nav>
         <h1>Más sobre la web Portfolio</h1>
@@ -139,8 +178,9 @@
                 que desaparece al cargar la página.
               </p>
               <p>
-                La edad en la sección <i>Sobre mí</i> se actualiza automáticamente mediante una función en JavaScript,
-                que calcula la edad a partir de la fecha de nacimiento sin necesidad de modificarla manualmente.
+                Los datos del portafolio (perfil, proyectos, tecnologías, experiencia y formación) se guardan en
+                MongoDB y se exportan a un archivo JSON estático que la página carga desde el mismo servidor, de modo
+                que la web carga rápido y no depende de que el servidor de la API esté activo.
               </p>
               <p>
                 La galería de proyectos utiliza Isotope.js para permitir un filtrado dinámico, reorganizando los
@@ -152,7 +192,6 @@
               <p>
                 Pueden ver el código en el enlace al repositorio de Github.
               </p>
-
             </div>
           </div>
 
@@ -164,14 +203,13 @@
                 <li><strong>Editor</strong>Visual Studio Code</li>
                 <li><strong>Tecnologías</strong>
                   <div class="container">
-                    <img class="img-icon" src="assets/img/icons/html-icon.png" title="HTML" />
-                    <img class="img-icon" src="assets/img/icons/css-icon.png" title="CSS" />
-                    <img class="img-icon" src="assets/img/icons/js-icon.png" title="JS" />
-                    <img class="img-icon" src="assets/img/icons/bootstrap-icon.png" title="Bootstrap" />
+                    <img class="img-icon" src="assets/img/icons/html-icon.webp" alt="HTML" title="HTML" width="100" height="100">
+                    <img class="img-icon" src="assets/img/icons/css-icon.webp" alt="CSS" title="CSS" width="71" height="100">
+                    <img class="img-icon" src="assets/img/icons/js-icon.webp" alt="JavaScript" title="JavaScript" width="100" height="100">
+                    <img class="img-icon" src="assets/img/icons/bootstrap-icon.webp" alt="Bootstrap" title="Bootstrap" width="100" height="100">
                   </div>
                 </li>
-                <li><strong>Repositorio</strong> <a href="https://github.com/DSalado97/PortfolioWeb"
-                    target="_blank" rel="noopener noreferrer">Github</a></li>
+                <li><strong>Repositorio</strong> <a href="https://github.com/DSalado97/PortfolioWeb" target="_blank" rel="noopener noreferrer">GitHub</a></li>
               </ul>
             </div>
           </div>
@@ -185,33 +223,24 @@
   </main>
 
   <!-- Scroll Top -->
-  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i
-      class="bi bi-arrow-up-short"></i></a>
+  <button type="button" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"
+    aria-label="Volver arriba"><i class="bi bi-arrow-up-short" aria-hidden="true"></i></button>
 
   <!-- Selector de tema -->
   <button type="button" id="toggle-theme" class="theme-toggle d-flex align-items-center justify-content-center"
-    aria-label="Cambiar a modo oscuro" title="Cambiar a modo oscuro">
+    aria-label="Modo oscuro" title="Modo oscuro" aria-pressed="false">
     <i class="bi bi-moon" aria-hidden="true"></i>
   </button>
 
   <!-- Preloader -->
-  <div id="preloader"></div>
+  <div id="preloader" aria-hidden="true"></div>
 
   <!-- Vendor JS Files -->
-  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="assets/vendor/php-email-form/validate.js"></script>
-  <script src="assets/vendor/aos/aos.js"></script>
-  <script src="assets/vendor/typed.js/typed.umd.js"></script>
-  <script src="assets/vendor/purecounter/purecounter_vanilla.js"></script>
-  <script src="assets/vendor/waypoints/noframework.waypoints.js"></script>
-  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
-  <script src="assets/vendor/imagesloaded/imagesloaded.pkgd.min.js"></script>
-  <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
-  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="assets/vendor/aos/aos.js" defer></script>
 
   <!-- Main JS File -->
-  <script src="assets/js/main.js"></script>
-  
+  <script src="assets/js/main.js" defer></script>
+
 </body>
 
 </html>

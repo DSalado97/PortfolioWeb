@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <!-- Tema: se aplica antes del primer pintado para evitar el parpadeo (único script inline). -->
+  <script>
+    (function aplicarTemaInicial() {
+      let temaGuardado = null;
+      try {
+        temaGuardado = localStorage.getItem('theme');
+      } catch (error) {
+        temaGuardado = null;
+      }
+      const esOscuro = temaGuardado
+        ? temaGuardado === 'dark'
+        : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.classList.add(esOscuro ? 'dark-background' : 'light-background');
+    })();
+  </script>
+
+  <link rel="canonical" href="https://dsalado97.github.io/PortfolioWeb/">
+  <title>Página no encontrada - Daniel Salado Romero</title>
+  <meta name="description" content="La página que buscas no existe. Vuelve al portafolio de Daniel Salado Romero.">
+  <meta name="robots" content="noindex">
+
+  <!-- Favicons -->
+  <link href="assets/img/favicon-dsr-16.png" rel="icon" sizes="16x16" type="image/png">
+  <link href="assets/img/favicon-dsr.png" rel="icon" sizes="32x32" type="image/png">
+  <link href="assets/img/apple-touch-icon-dsr.png" rel="apple-touch-icon">
+
+  <!-- Vendor CSS Files -->
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="assets/css/main.css" rel="stylesheet">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Página no encontrada",
+    "description": "La página que buscas no existe.",
+    "inLanguage": "es",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Daniel Salado Romero - Portafolio",
+      "url": "https://dsalado97.github.io/PortfolioWeb/"
+    }
+  }
+  </script>
+</head>
+
+<body class="not-found-page">
+
+  <main class="main not-found" id="main-content">
+    <section class="section">
+      <div class="container text-center">
+        <p class="not-found-code" aria-hidden="true">404</p>
+        <h1>Página no encontrada</h1>
+        <p class="lead">La dirección que has abierto no existe o ha cambiado de sitio.</p>
+        <p><a class="btn-return" href="index.html"><i class="bi bi-house" aria-hidden="true"></i> Volver al inicio</a></p>
+      </div>
+    </section>
+  </main>
+
+</body>
+
+</html>
