@@ -65,7 +65,8 @@ function buildPersonJsonLd(snapshot) {
 function generarIndex(html, snapshot) {
   const profile = snapshot.perfil || {};
   const contact = snapshot.contacto || {};
-  let result = html;
+  // En Windows Git puede dejar los archivos con CRLF: se normaliza a LF (Git lo convierte al confirmar).
+  let result = html.replace(/\r\n/g, '\n');
 
   result = replaceBoundText(result, 'data-portfolio-name', profile.nombre);
   result = replaceBoundText(result, 'data-portfolio-title', profile.titulo);
@@ -95,7 +96,7 @@ function generarIndex(html, snapshot) {
 
 function main() {
   const snapshot = JSON.parse(fs.readFileSync(snapshotPath, 'utf8'));
-  const current = fs.readFileSync(indexPath, 'utf8');
+  const current = fs.readFileSync(indexPath, 'utf8').replace(/\r\n/g, '\n');
   const updated = generarIndex(current, snapshot);
 
   if (process.argv.includes('--comprobar')) {

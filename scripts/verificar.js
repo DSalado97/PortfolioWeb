@@ -314,7 +314,7 @@ check('Existe 404.html', fs.existsSync(path.join(rootDir, '404.html')) ? [] : ['
   try {
     const { generarIndex } = require('./sincronizar-html.js');
     const snapshot = JSON.parse(read(path.join(rootDir, 'assets', 'data', 'portfolio.json')));
-    const current = read(path.join(rootDir, 'index.html'));
+    const current = read(path.join(rootDir, 'index.html')).replace(/\r\n/g, '\n');
     if (generarIndex(current, snapshot) !== current) {
       failures.push('index.html no coincide con el snapshot. Ejecuta: npm run sincronizar');
     }
