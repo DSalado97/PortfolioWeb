@@ -1,98 +1,104 @@
 # Portfolio Web — Daniel Salado Romero
 
-Portafolio profesional online que muestra mi trayectoria como Desarrollador Full Stack, proyectos realizados, habilidades técnicas y formación académica.
+Portafolio profesional online que muestra mi trayectoria como Analista de Ciberseguridad Junior y Desarrollador Full Stack, proyectos realizados, habilidades técnicas y formación académica.
 
 **[Ver en vivo](https://dsalado97.github.io/PortfolioWeb/)**
 
 ## Stack
 
 - **HTML5** semántico y accesible
-- **CSS3** con variables personalizadas y modo oscuro
-- **Bootstrap 5.3** — grid, componentes y utilidades
+- **CSS3** con variables personalizadas y modo oscuro (preferencia del sistema + selector manual, sin parpadeo)
+- **Bootstrap 5.3** — grid y utilidades (solo CSS)
 - **JavaScript** vanilla — interactividad, animaciones y lógica
-- **Librerías**: AOS (animaciones), Typed.js (texto animado), Isotope (filtrado de portfolio), Swiper (sliders), GLightbox, PureCounter
-- **Backend**: Node.js, Express y driver oficial de MongoDB
+- **Librerías**: AOS (animaciones), Typed.js (texto animado), Isotope (filtrado de portfolio), Bootstrap Icons
+- **Datos**: snapshot JSON estático (`assets/data/portfolio.json`) generado desde MongoDB
+- **Backend opcional**: Node.js, Express y driver oficial de MongoDB (API en Render)
 
 ## Estructura
 
 ```
 portfolio-web/
-├── index.html                          # Página principal
+├── index.html                          # Página principal (HTML estático sincronizado con el snapshot)
 ├── portfolio-details-*.html            # Páginas de detalle de proyectos
-├── server.js                            # API y servidor de archivos estáticos
-├── render.yaml                           # Configuración del despliegue en Render
-├── atlas-credentials.env.example         # Plantilla de migración local a Atlas
-├── package.json                         # Dependencias y comandos del servidor
-├── .env.example                         # Configuración local de MongoDB
+├── 404.html                            # Página de error para GitHub Pages
+├── server.js                           # API y servidor de archivos públicos (opcional)
+├── render.yaml                         # Configuración del despliegue en Render
+├── package.json                        # Dependencias y comandos
+├── PENDIENTES.md                       # Tareas que requieren intervención manual
 ├── assets/
-│   ├── css/
-│   │   └── main.css                    # Estilos principales
+│   ├── css/main.css                    # Estilos principales
+│   ├── data/portfolio.json             # Snapshot del contenido (sin datos privados)
 │   ├── js/
-│   │   ├── main.js                     # Interactividad y librerías vendor
-│   │   ├── api-config.js                # URL pública de la API
-│   │   └── portfolio-data.js            # Renderizado de datos desde la API
-│   ├── img/                            # Imágenes y recursos
-│   └── vendor/                         # Librerías de terceros
-│       ├── bootstrap/
-│       ├── bootstrap-icons/
-│       ├── aos/
-│       ├── glightbox/
-│       ├── swiper/
-│       ├── typed.js/
-│       ├── isotope-layout/
-│       ├── purecounter/
-│       ├── waypoints/
-│       ├── imagesloaded/
-│       └── php-email-form/
+│   │   ├── main.js                     # Interactividad (menú, tema, filtros, acordeones, hero)
+│   │   ├── portfolio-render.js         # Generadores de HTML (navegador y Node)
+│   │   └── portfolio-data.js           # Carga el snapshot y actualiza la portada si cambió
+│   ├── img/                            # Imágenes WebP/JPG, iconos y og-image
+│   │   └── projects/                   # Miniaturas, vídeos WebM/MP4 y pósters
+│   └── vendor/                         # Librerías de terceros (no modificar)
+├── scripts/
+│   ├── exportar-snapshot.js            # MongoDB (o API) → assets/data/portfolio.json
+│   ├── sincronizar-html.js             # snapshot → bloques estáticos de index.html
+│   ├── actualizar-mongo.js             # Aplica a MongoDB los cambios de datos (ensayo por defecto)
+│   ├── verificar.js                    # Comprobaciones automáticas
+│   └── migrate-to-atlas.js             # Migración local → Atlas
+├── CV/                                 # Versión imprimible del CV
 └── .gitignore
 ```
 
-## Conexión con MongoDB
+## Flujo de datos: MongoDB → snapshot → web
 
-La web ya no lee el contenido del HTML como fuente de datos. Al cargarla, el navegador solicita los datos a `GET /api/portfolio`; el servidor consulta las colecciones `perfil`, `proyectos`, `habilidades`, `experiencia`, `formacion` y `contacto` de MongoDB.
+MongoDB sigue siendo la fuente de verdad, pero la web **no depende de ningún servidor** para cargar:
 
-MongoDB no se conecta directamente desde el navegador. La variable `MONGODB_URI` solo existe en el servidor y nunca se publica en el frontend.
+1. `npm run snapshot` lee MongoDB (variable `MONGODB_URI` del `.env`) y escribe `assets/data/portfolio.json`, quitando `_id`, teléfono y fecha de nacimiento. Después ejecuta `scripts/sincronizar-html.js`, que regenera en `index.html` los bloques de proyectos, tecnologías, experiencia, formación, contacto y el JSON-LD.
+2. El HTML ya contiene el contenido final, así que no hay saltos al cargar. En el navegador, `portfolio-data.js` descarga el snapshot (mismo origen) y solo vuelve a pintar la portada si `data-snapshot` del `<body>` no coincide con el campo `generado` del JSON.
+3. Haz commit de `assets/data/portfolio.json` y `index.html` y sube a `main`: GitHub Pages lo publica.
+
+Si cambias el contenido a mano en el JSON, ejecuta `npm run sincronizar` para actualizar el HTML estático. Las páginas de detalle de proyecto tienen el texto en su propio HTML.
+
+### Actualizar MongoDB con los cambios de esta versión
+
+`scripts/actualizar-mongo.js` aplica a la base de datos los mismos cambios de datos que ya están en el snapshot (rutas de imágenes y vídeos, sin teléfono ni fecha de nacimiento, erratas, título y máster). Es un **ensayo por defecto**:
+
+```powershell
+npm run actualizar:mongo              # solo muestra lo que cambiaría
+npm run actualizar:mongo -- --aplicar # escribe los cambios
+```
+
+Ejecútalo **antes** de `npm run snapshot` (que se niega a exportar rutas de archivos que no existan).
+
+## Comandos
+
+| Comando | Qué hace |
+| --- | --- |
+| `npm start` | Servidor Express en `http://localhost:3000` (solo archivos públicos). No necesita MongoDB para ver la web con el snapshot |
+| `npm run snapshot` | MongoDB → snapshot JSON → HTML estático |
+| `npm run sincronizar` | Regenera el HTML estático desde el snapshot |
+| `npm run verificar` | Comprobaciones automáticas (pesos, alt, rutas, privacidad, SEO, sintaxis…). Sale con código 1 si algo falla |
+| `npm run actualizar:mongo` | Ensayo de actualización de MongoDB (`-- --aplicar` para escribir) |
+| `npm run migrate:atlas` | Migra las colecciones locales a Atlas |
+
+## Backend opcional en Render
+
+`server.js` sigue disponible para quien quiera la API (`GET /api/portfolio`, `/api/portfolio/projects/:slug`, `/api/health`). Solo sirve las páginas HTML públicas y `assets/`; cachea la lectura de MongoDB 5 minutos y no expone `x-powered-by`. Configura `MONGODB_URI`, `MONGODB_DB_NAME`, `PORT` y `ALLOWED_ORIGINS` en el servicio. La web publicada ya no llama a esta API al cargar.
 
 ### Uso local con MongoDB Compass
 
-1. Instala Node.js si todavía no está instalado.
-2. Abre PowerShell en la carpeta del proyecto.
-3. Instala las dependencias con `npm install`.
-4. Copia `.env.example` a `.env` y revisa `MONGODB_DB_NAME`.
-5. Comprueba que el servicio de MongoDB está iniciado.
-6. Ejecuta `npm start`.
-7. Abre `http://localhost:3000`, no `index.html` directamente.
-8. Comprueba la conexión en `http://localhost:3000/api/health`.
+1. Instala Node.js (≥ 20) y ejecuta `npm install`.
+2. Copia `.env.example` a `.env` y revisa `MONGODB_DB_NAME`.
+3. Comprueba que MongoDB está iniciado y ejecuta `npm run snapshot`.
+4. Ejecuta `npm start` y abre `http://localhost:3000`.
 
-Los cambios realizados en Compass se verán al recargar la página. La API utiliza `Cache-Control: no-store` para evitar que el navegador muestre una respuesta antigua. Si la API no está disponible, la web conserva temporalmente el contenido estático incluido en el repositorio.
-
-### Despliegue público
-
-GitHub Pages solo sirve archivos estáticos y no puede ejecutar `server.js` ni acceder a una base de datos local. Para que la web pública utilice MongoDB necesitas:
-
-- MongoDB Atlas u otra base de datos accesible desde Internet.
-- Desplegar `server.js` en un servicio Node.js como Render, Railway o Fly.io.
-- Configurar en ese servicio `MONGODB_URI`, `MONGODB_DB_NAME`, `PORT` y `ALLOWED_ORIGINS`.
-- Cambiar `window.PORTFOLIO_API_BASE_URL` en `assets/js/api-config.js` por la URL pública de la API.
-
-La opción más sencilla es desplegar la web y `server.js` como un único servicio en Render. En ese caso no hace falta cambiar `data-api-base-url`, porque la web y la API compartirán dominio. Render leerá `MONGODB_URI` desde sus variables privadas y no desde el repositorio.
+No publiques nunca `.env`, `atlas-credentials.env` ni una URI con usuario y contraseña.
 
 ### Migrar las colecciones locales a Atlas
 
-1. En Atlas crea el clúster y un usuario con permisos de escritura temporal para la migración.
-2. En **Network Access**, añade tu IP actual para conectar Compass. Para Render necesitarás permitir las conexiones del servicio; si usas `0.0.0.0/0`, utiliza una contraseña fuerte y el usuario de API con permisos de solo lectura.
-3. Copia `atlas-credentials.env.example` a `atlas-credentials.env`.
-4. Sustituye `TARGET_MONGODB_URI` por la URI de Atlas. No la publiques ni la envíes por chat.
-5. Cambia `REPLACE_TARGET` a `true` solo si quieres reemplazar las colecciones existentes en Atlas.
-6. Ejecuta `npm run migrate:atlas`.
-
-El script migra `perfil`, `proyectos`, `habilidades`, `experiencia`, `formacion` y `contacto`. El archivo `atlas-credentials.env` está excluido de Git.
-
-No publiques nunca `.env` ni una URI con usuario y contraseña en los archivos HTML o JavaScript.
+1. Copia `atlas-credentials.env.example` a `atlas-credentials.env` y rellena `TARGET_MONGODB_URI`.
+2. Cambia `REPLACE_TARGET` a `true` solo si quieres reemplazar las colecciones existentes en Atlas.
+3. Ejecuta `npm run migrate:atlas`.
 
 ## Despliegue
 
-El sitio se despliega automáticamente en **GitHub Pages** desde la rama `main`.
+El sitio se despliega automáticamente en **GitHub Pages** desde la rama `main`. Antes de subir cambios, ejecuta `npm run verificar`.
 
 ## Licencia
 
@@ -100,4 +106,4 @@ El template base es [MyResume](https://bootstrapmade.com/free-html-bootstrap-tem
 
 ---
 
-*Última actualización: 2025*
+*Última actualización: noviembre de 2026*
