@@ -1,0 +1,389 @@
+{
+  "generado": "2026-11-24T11:04:00.866Z",
+  "perfil": {
+    "nombre": "Daniel Salado Romero",
+    "titulo": "Analista de Ciberseguridad Junior - Desarrollador Full Stack",
+    "roles": [
+      "Analista de Ciberseguridad Junior",
+      "Desarrollador Full Stack",
+      "Desarrollador de Aplicaciones Móviles",
+      "Desarrollador de IA",
+      "Analista de Datos"
+    ],
+    "ciudad": "Sevilla",
+    "pais": "España",
+    "email": "danielsalado@protonmail.com",
+    "disponibilidad": "Inmediata",
+    "descripcion": "Soy una persona proactiva, con excelentes habilidades de comunicación y colaboración. Aprendo rápidamente nuevas tecnologías y lenguajes, mantengo constancia en el trabajo y tomo decisiones efectivas, aportando soluciones prácticas en todo momento. Me adapto fácilmente a distintos entornos, modos de trabajo y culturas empresariales, mostrando versatilidad en diversas disciplinas del área informática. Disfruto trabajando en equipo y siempre busco aprender y asumir nuevos retos profesionales.",
+    "redes": {
+      "github": "https://github.com/DSalado97",
+      "linkedin": "https://www.linkedin.com/in/saladodaniel/"
+    },
+    "web": "https://dsalado97.github.io/PortfolioWeb/"
+  },
+  "contacto": {
+    "email": "danielsalado@protonmail.com",
+    "linkedin": "https://www.linkedin.com/in/saladodaniel/",
+    "github": "https://github.com/DSalado97",
+    "ciudad": "Sevilla, España",
+    "disponibilidad": "Inmediata"
+  },
+  "proyectos": [
+    {
+      "nombre": "Dots",
+      "slug": "dots",
+      "categoria": "juegos",
+      "tipo": "Multiplataforma",
+      "descripcion_corta": "Juego móvil inspirado en Agar.io",
+      "imagen": "assets/img/projects/dots.webp",
+      "imagen_fallback": "assets/img/projects/dots.jpg",
+      "ancho": 720,
+      "alto": 720,
+      "video": {
+        "webm": "assets/img/projects/dots.webm",
+        "mp4": "assets/img/projects/dots.mp4",
+        "poster": "assets/img/projects/dots-poster.webp"
+      },
+      "ide": "Android Studio",
+      "tecnologias": [
+        "Android",
+        "Java"
+      ],
+      "repositorio": "https://github.com/DSalado97/RepositorioDots",
+      "descarga": "https://drive.google.com/uc?export=download&id=1j0WqA5F9lQPxueyqBoaWvqUjHCcttsOb",
+      "detalle": "portfolio-details-dots.html"
+    },
+    {
+      "nombre": "Billar",
+      "slug": "billar",
+      "categoria": "juegos",
+      "tipo": "Multiplataforma",
+      "descripcion_corta": "Juego móvil sencillo de billar.",
+      "imagen": "assets/img/projects/billar.webp",
+      "imagen_fallback": "assets/img/projects/billar.jpg",
+      "ancho": 720,
+      "alto": 480,
+      "video": {
+        "webm": "assets/img/projects/billar.webm",
+        "mp4": "assets/img/projects/billar.mp4",
+        "poster": "assets/img/projects/billar-poster.webp"
+      },
+      "ide": "Android Studio",
+      "tecnologias": [
+        "Android",
+        "Java"
+      ],
+      "repositorio": "https://github.com/DSalado97/RepositorioBillar",
+      "detalle": "portfolio-details-billar.html"
+    },
+    {
+      "nombre": "RPG",
+      "slug": "rpg",
+      "categoria": "juegos",
+      "tipo": "Multiplataforma",
+      "descripcion_corta": "RPG desarrollado utilizando el framework Ionic.",
+      "imagen": "assets/img/projects/rpg.webp",
+      "imagen_fallback": "assets/img/projects/rpg.jpg",
+      "ancho": 343,
+      "alto": 300,
+      "video": {
+        "webm": "assets/img/projects/rpg.webm",
+        "mp4": "assets/img/projects/rpg.mp4",
+        "poster": "assets/img/projects/rpg-poster.webp"
+      },
+      "editor": "Visual Studio Code",
+      "tecnologias": [
+        "Ionic",
+        "TypeScript"
+      ],
+      "repositorio": "https://github.com/DSalado97/RepositorioRPG",
+      "detalle": "portfolio-details-rpg.html"
+    },
+    {
+      "nombre": "Portafolio Web",
+      "slug": "portafolio-web",
+      "categoria": "web",
+      "tipo": "Web",
+      "descripcion_corta": "Este portafolio web.",
+      "imagen": "assets/img/projects/portfolio.webp",
+      "imagen_fallback": "assets/img/projects/portfolio.jpg",
+      "ancho": 720,
+      "alto": 411,
+      "editor": "Visual Studio Code",
+      "tecnologias": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "Bootstrap"
+      ],
+      "repositorio": "https://github.com/DSalado97/PortfolioWeb",
+      "detalle": "portfolio-details-portfolio.html"
+    }
+  ],
+  "habilidades": [
+    {
+      "categoria": "Lenguajes de Programación",
+      "items": [
+        {
+          "nombre": "C#",
+          "descripcion": "Desarrollo en .NET Core."
+        },
+        {
+          "nombre": "GDScript",
+          "descripcion": "Desarrollo de videojuegos con el motor Godot, creando mecánicas personalizadas, sistemas de física y comportamientos interactivos."
+        },
+        {
+          "nombre": "Java",
+          "descripcion": [
+            "Desarrollo de aplicaciones en entornos Windows y Linux, incluyendo aplicaciones de escritorio y servidores.",
+            "Desarrollo de aplicaciones Android, utilizando Java para crear interfaces de usuario y gestionar la lógica de la aplicación."
+          ]
+        },
+        {
+          "nombre": "Kotlin",
+          "descripcion": "Desarrollo de aplicaciones Android, aprovechando las características modernas de Kotlin para mejorar la eficiencia y legibilidad del código."
+        },
+        {
+          "nombre": "Python",
+          "descripcion": [
+            "Desarrollo de algoritmos de inteligencia artificial, incluyendo machine learning y procesamiento de datos.",
+            "Proyecto creando un ERP en grupo."
+          ]
+        },
+        {
+          "nombre": "TypeScript",
+          "descripcion": "Desarrollo de videojuegos estilo RPG con Ionic Framework, aprovechando el tipado estático para mejorar la mantenibilidad del código y su escalabilidad."
+        }
+      ]
+    },
+    {
+      "categoria": "Frameworks y Bibliotecas",
+      "items": [
+        {
+          "nombre": "Apache Tomcat",
+          "descripcion": "Despliegue y mantenimiento de aplicaciones web Java en servidores Apache Tomcat, configurando entornos seguros y eficientes."
+        },
+        {
+          "nombre": "Hibernate",
+          "descripcion": "Mapeo objeto-relacional (ORM) para integraciones eficientes con bases de datos, implementando consultas personalizadas y estructuras complejas de datos."
+        },
+        {
+          "nombre": "Ionic y Angular",
+          "descripcion": "Desarrollo multiplataforma de aplicaciones móviles y web progresivas, optimizando interfaces reactivas y componentes reutilizables."
+        },
+        {
+          "nombre": "Spring Boot",
+          "descripcion": "Desarrollo de microservicios y APIs RESTful con Spring Boot, utilizando inyección de dependencias y buenas prácticas de diseño orientado a objetos."
+        },
+        {
+          "nombre": "TensorFlow, Keras, Scikit-learn, Jupyter Notebooks",
+          "descripcion": "Desarrollo de modelos de IA aplicados a la clasificación, regresión, clustering y reconocimiento de patrones, todo documentado en entornos interactivos y reproducibles."
+        }
+      ]
+    },
+    {
+      "categoria": "Entornos de Desarrollo",
+      "items": [
+        {
+          "nombre": "Android Studio",
+          "descripcion": "Creación y depuración de aplicaciones móviles en Java y Kotlin, incluyendo integración con servicios externos y pruebas en emuladores."
+        },
+        {
+          "nombre": "Eclipse",
+          "descripcion": "Desarrollo estructurado de aplicaciones Java, incluyendo pruebas, debugging y control de versiones."
+        },
+        {
+          "nombre": "NetBeans e IntelliJ",
+          "descripcion": "Exploración y adaptación a nuevos entornos de desarrollo con distintos flujos de trabajo, destacando la capacidad de adaptación rápida."
+        },
+        {
+          "nombre": "Visual Studio Code",
+          "descripcion": "Uso extensivo para desarrollo en Python e inteligencia artificial, configurando entornos virtuales, extensiones y linters personalizados."
+        }
+      ]
+    },
+    {
+      "categoria": "Bases de Datos",
+      "items": [
+        {
+          "nombre": "No relacionales",
+          "descripcion": "MongoDB."
+        },
+        {
+          "nombre": "Relacionales",
+          "descripcion": [
+            "MySQL.",
+            "MariaDB.",
+            "Oracle SQL Developer."
+          ]
+        }
+      ]
+    },
+    {
+      "categoria": "Servicios en la Nube",
+      "items": [
+        {
+          "nombre": "AWS",
+          "descripcion": "Familiaridad con los servicios principales de Amazon Web Services, incluyendo despliegue de aplicaciones, almacenamiento en la nube y bases de datos escalables."
+        }
+      ]
+    },
+    {
+      "categoria": "Redes y Protocolos de Comunicación",
+      "items": [
+        {
+          "nombre": "Formación",
+          "descripcion": "Formación en arquitectura de redes, protocolos TCP/IP, cableado estructurado, configuración de dispositivos y resolución de problemas de conectividad."
+        }
+      ]
+    },
+    {
+      "categoria": "Sistemas de Seguridad y Ciberseguridad",
+      "items": [
+        {
+          "nombre": "Formación",
+          "descripcion": "Conocimientos en sistemas de seguridad y controles de acceso."
+        }
+      ]
+    },
+    {
+      "categoria": "API y Herramientas de Pruebas",
+      "items": [
+        {
+          "nombre": "API REST",
+          "descripcion": "Desarrollo, documentación y consumo de APIs RESTful, integrando servicios externos y facilitando la interoperabilidad entre aplicaciones."
+        },
+        {
+          "nombre": "Postman",
+          "descripcion": [
+            "Uso de Postman para pruebas automatizadas de APIs, verificación de respuestas, creación de colecciones y gestión de entornos de prueba.",
+            "Análisis funcional de entornos de aplicaciones web orientados al sector sanitario, principalmente en lenguaje Java, bases de datos Oracle y diversas tecnologías de front-end.",
+            "Recopilación y análisis de requisitos, elaboración de documentación funcional y manuales de usuario, así como parametrización y configuración de módulos y entornos.",
+            "Uso avanzado de Excel para análisis, validación y tratamiento de datos. Participación en proyectos con desplazamientos a cliente y colaboración directa con usuarios finales y equipos técnicos.",
+            "Desarrollo y despliegue de proyectos Apache Tomcat de integración y comunicación con dispositivos de seguridad y sensores a través de tecnología web.",
+            "He servido además de apoyo para el equipo de campos electromagnéticos controlados.",
+            "Programación Java en entornos Windows y Linux. Formación en redes, protocolos de red, conexiones y cableado. En sistemas de seguridad, controles de acceso y ciberseguridad.",
+            "Programación de diferentes algoritmos de inteligencia artificial, empleando tecnologías de Visual Studio Code con Jupyter Notebooks, Google y Python.",
+            "Conocimientos de machine learning y aprendizaje supervisado, no supervisado, semi-supervisado, por refuerzo y redes neuronales.",
+            "Formación complementaria en tecnología AWS.",
+            "Formación basada principalmente en el lenguaje de programación Java y base de datos relacionales SQL (MySQL/MariaDB, Oracle SQL Developer) y no relacionales (MongoDB) sobre entornos multiplataforma (Microsoft Windows, GNU/Linux, Android). Conocimiento avanzado en el entorno de desarrollo de Eclipse.",
+            "Desarrollo de aplicaciones Android con lenguajes Java y Kotlin, con experiencia en el entorno de desarrollo de Android Studio.",
+            "Ampliada mi formación oficial con C\\# (.NET Core) y Unity (habiendo realizado proyectos propios 2D), ERP con Python, Hibernate y Spring Boot y algo de experiencia en el entorno NetBeans. También conocimiento de API REST y Postman.",
+            "Trabajo fin de grado: juego RPG por turnos de exploración y supervivencia basado en Ionic Framework y programado en Typescript."
+          ]
+        }
+      ]
+    },
+    {
+      "categoria": "Tecnologías de Inteligencia Artificial",
+      "items": [
+        {
+          "nombre": "Claude"
+        },
+        {
+          "nombre": "Codex"
+        },
+        {
+          "nombre": "Deep Learning",
+          "descripcion": [
+            "Diseño y entrenamiento de redes neuronales profundas para tareas de reconocimiento de imágenes y procesamiento de lenguaje natural.",
+            "Implementación de arquitecturas avanzadas como CNN (Redes Neuronales Convolucionales) y RNN (Redes Neuronales Recurrentes).",
+            "Optimización de modelos mediante técnicas de regularización y ajuste de hiperparámetros.",
+            "Experiencia en el uso de frameworks como TensorFlow y Keras para el desarrollo de modelos de Deep Learning."
+          ]
+        },
+        {
+          "nombre": "Machine Learning",
+          "descripcion": [
+            "Técnicas de aprendizaje supervisado, no supervisado, semi-supervisado y por refuerzo.",
+            "Desarrollo de modelos de regresión para predicción de valores continuos.",
+            "Implementación de modelos de clasificación para la categorización de datos en diferentes clases.",
+            "Aplicación de técnicas de clustering para la segmentación de datos y descubrimiento de patrones.",
+            "Uso de redes neuronales para resolver problemas complejos y mejorar la precisión de los modelos."
+          ]
+        },
+        {
+          "nombre": "OpenCode"
+        }
+      ]
+    },
+    {
+      "categoria": "Herramientas de Automatización",
+      "items": [
+        {
+          "nombre": "n8n"
+        },
+        {
+          "nombre": "Google Apps Script"
+        }
+      ]
+    }
+  ],
+  "experiencia": [
+    {
+      "puesto": "Full Stack Developer",
+      "empresa": "Hubler (Dobuss Group)",
+      "ubicacion": "Córdoba",
+      "periodo": null,
+      "responsabilidades": [
+        "Gestión de reuniones directas con clientes para presentar y validar soluciones de producto.",
+        "Desarrollo de aplicaciones aplicando buenas prácticas de programación con herramientas de IA.",
+        "Diseño e implementación de flujos de automatización con n8n y Google Apps Script.",
+        "Integración de IA en el ciclo de desarrollo para acelerar la construcción de soluciones."
+      ],
+      "logros": "Realización del MVP de una aplicación de prefactibilidad financiera y arquitectónica."
+    },
+    {
+      "puesto": "Analyst",
+      "empresa": "Minsait",
+      "ubicacion": "Sevilla",
+      "periodo": null,
+      "responsabilidades": [
+        "Análisis funcional de entornos de aplicaciones web orientados al sector sanitario, principalmente en lenguaje Java, bases de datos Oracle y diversas tecnologías de front-end",
+        "Recopilación y análisis de requisitos, elaboración de documentación funcional y manuales de usuario, así como parametrización y configuración de módulos y entornos",
+        "Uso avanzado de Excel para análisis, validación y tratamiento de datos",
+        "Participación en proyectos con desplazamientos a cliente y colaboración directa con usuarios finales y equipos técnicos"
+      ]
+    },
+    {
+      "puesto": "Back End Developer",
+      "empresa": "Ontech Security S.L.",
+      "ubicacion": "La Rinconada, Sevilla",
+      "periodo": null,
+      "responsabilidades": [
+        "Desarrollo y despliegue de proyectos Apache Tomcat de integración y comunicación con dispositivos de seguridad y sensores a través de tecnología web",
+        "Apoyo para el equipo de campos electromagnéticos controlados",
+        "Programación Java en entornos Windows y Linux",
+        "Formación en redes, protocolos de red, conexiones y cableado",
+        "Formación en sistemas de seguridad, controles de acceso y ciberseguridad"
+      ]
+    }
+  ],
+  "formacion": [
+    {
+      "titulo": "Máster en Dirección de Ciberseguridad, Hacking Ético y Seguridad Ofensiva",
+      "centro": "EIP International Business School (Cursando actualmente)"
+    },
+    {
+      "titulo": "Especialización de FP Superior en Inteligencia Artificial y Big Data",
+      "centro": "I.E.S. Antonio Brisquet",
+      "ubicacion": "Camas, Sevilla",
+      "detalles": [
+        "Programación de diferentes algoritmos de inteligencia artificial, empleando tecnologías de Visual Studio Code con Jupyter Notebooks, Google y Python.",
+        "Conocimientos de machine learning y aprendizaje supervisado, no supervisado, semi-supervisado, por refuerzo y redes neuronales.",
+        "Formación complementaria en tecnología AWS."
+      ]
+    },
+    {
+      "titulo": "Grado Superior en Desarrollo de Aplicaciones Multiplataforma",
+      "centro": "I.E.S. Julio Verne",
+      "ubicacion": "Sevilla",
+      "detalles": [
+        "Formación basada principalmente en el lenguaje de programación Java y base de datos relacionales SQL (MySQL/MariaDB, Oracle SQL Developer) y no relacionales (MongoDB) sobre entornos multiplataforma (Microsoft Windows, GNU/Linux, Android). Conocimiento avanzado en el entorno de desarrollo de Eclipse.",
+        "Desarrollo de aplicaciones Android con lenguajes Java y Kotlin, con experiencia en el entorno de desarrollo de Android Studio.",
+        "Ampliada mi formación oficial con C\\# (.NET Core) y Unity (habiendo realizado proyectos propios 2D), ERP con Python, Hibernate y Spring Boot y algo de experiencia en el entorno NetBeans. También conocimiento de API REST y Postman.",
+        "Trabajo fin de grado: juego RPG por turnos de exploración y supervivencia basado en Ionic Framework y programado en Typescript."
+      ]
+    }
+  ]
+}
