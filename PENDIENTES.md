@@ -2,6 +2,13 @@
 
 Tareas que requieren intervención manual (credenciales, datos personales o decisiones tuyas).
 
+## Estado de MongoDB
+
+- **MongoDB local (`mongodb://127.0.0.1:27017`, base `portfolio_daniel`)**: alineado con `scripts/actualizar-mongo.js --aplicar` (9 documentos; repetir el ensayo da 0 cambios).
+- **Atlas (`MONGODB_URI` del `.env`)**: no se pudo alinear. El host `cluster0.yqkg0hb.mongodb.net` no resuelve en DNS público (1.1.1.1, 8.8.8.8, 9.9.9.9 → ENOTFOUND). Revisa que el clúster exista y la URI sea correcta; después ejecuta `npm run actualizar:mongo` (ensayo) y `-- --aplicar`.
+- La base local estaba **más desactualizada** que los datos del snapshot (no tenía, por ejemplo, la experiencia de Hubler ni las habilidades de IA/automatización). Antes de `npm run snapshot` desde local, comprueba con `git diff` que no pierdes contenido; el snapshot actual viene de `CV/datos-cv.js`.
+- `CV/` está en `.gitignore`, pero sus archivos **siguen versionados** (y por tanto publicados en Pages). Para dejar de versionarlos: `git rm -r --cached CV` (los archivos locales se conservan).
+
 ## Obligatorias antes de publicar
 
 1. **Alinear MongoDB con la web** (no se ha escrito nada en ninguna base de datos remota):
