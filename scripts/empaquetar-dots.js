@@ -26,8 +26,16 @@ function extract(text, start, end, name) {
   return text.slice(from + start.length, to).trim();
 }
 
+// La imagen va incrustada para que el archivo no dependa de ningún otro.
+function embedSkin(markup) {
+  return markup.replace(/ data-skin="([^"]+)"/, (match, file) => {
+    const image = fs.readFileSync(path.join(rootDir, file)).toString('base64');
+    return ` data-skin="data:image/webp;base64,${image}"`;
+  });
+}
+
 function generarDescargable() {
-  const markup = extract(read('portfolio-details-dots.html'), '<!-- dots:start -->', '<!-- dots:end -->', 'portfolio-details-dots.html');
+  const markup = embedSkin(extract(read('portfolio-details-dots.html'), '<!-- dots:start -->', '<!-- dots:end -->', 'portfolio-details-dots.html'));
   const styles = extract(read('assets', 'css', 'main.css'), '/* === JUEGO DOTS === */', '/* === FIN JUEGO DOTS === */', 'main.css');
   const scripts = ['dots-core.js', 'dots-render.js', 'dots-audio.js', 'dots-game.js']
     .map(file => read('assets', 'js', 'dots', file).trim())

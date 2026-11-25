@@ -23,6 +23,8 @@
   // Tonos irisados de la película de jabón.
   const SOAP = ['#ffb7d5', '#ffe6a8', '#b8f0d0', '#a9d8ff', '#d9b8ff', '#ffb7d5'];
   const INK_LIFE = 1.6;
+  // Fracción de la imagen que ocupa el círculo útil de la skin; el resto es margen.
+  const SKIN_CIRCLE = 0.94;
 
   const getColors = index => (index < 0 ? PLAYER_COLORS : PALETTE[index]);
 
@@ -37,6 +39,7 @@
     const view = { width: 1, height: 1, ratio: 1, scale: 1, x: 0, y: 0 };
     let drops = [];
     let rings = [];
+    let skin = null;
 
     function resize(width, height, ratio) {
       view.width = Math.max(1, width);
@@ -176,11 +179,13 @@
       context.fillStyle = body;
       context.fill(path);
 
-      if (dot.inks.length || r > 10) {
+      const hasSkin = isPlayer && skin !== null;
+      if (dot.inks.length || r > 10 || hasSkin) {
         context.save();
         context.clip(path);
+        if (hasSkin) drawSkin(dot, x, y, r);
         drawInks(dot, x, y, r);
-        if (r > 10) drawLights(dot, x, y, r, isPlayer);
+        if (r > 10) drawLights(dot, x, y, r, hasSkin ? 0.22 : isPlayer ? 0.95 : 0.62);
         context.restore();
       }
 
@@ -194,6 +199,44 @@
         context.lineWidth = clamp(r * 0.05, 1.5, 5);
         context.strokeStyle = getSoapStroke(x, y, r, dot.id);
         context.stroke(path);
+        context.restore();
+      }
+    }
+
+    // Skin: la imagen se reparte en porciones pegadas al anillo, así se deforma con el globo.
+    function drawSkin(dot, x, y, r) {
+      const { count, h } = dot;
+      const { cos, sin } = getDirections(count);
+      const stride = count > 48 ? 2 : 1;
+      const half = 1 / SKIN_CIRCLE;
+      for (let i = 0; i < count; i += stride) {
+        const j = (i + stride) % count;
+        const reachA = r * (1 + h[i]);
+        const reachB = r * (1 + h[j]);
+        const ax = cos[i] * reachA;
+        const ay = sin[i] * reachA;
+        const bx = cos[j] * reachB;
+        const by = sin[j] * reachB;
+        // Porción algo mayor que su hueco, para que no se vean las juntas.
+        const dx = (bx - ax) * 0.08;
+        const dy = (by - ay) * 0.08;
+        context.save();
+        context.beginPath();
+        context.moveTo(x - (ax + bx) * 0.01, y - (ay + by) * 0.01);
+        context.lineTo(x + (ax - dx) * 1.06, y + (ay - dy) * 1.06);
+        context.lineTo(x + (bx + dx) * 1.06, y + (by + dy) * 1.06);
+        context.closePath();
+        context.clip();
+        // Transformación que lleva los dos radios de la imagen a los dos del globo.
+        const area = cos[i] * sin[j] - sin[i] * cos[j];
+        context.transform(
+          (ax * sin[j] - bx * sin[i]) / area,
+          (ay * sin[j] - by * sin[i]) / area,
+          (bx * cos[i] - ax * cos[j]) / area,
+          (by * cos[i] - ay * cos[j]) / area,
+          x, y
+        );
+        context.drawImage(skin, -half, -half, half * 2, half * 2);
         context.restore();
       }
     }
@@ -220,12 +263,12 @@
     }
 
     // Reflejo superior y luz de rebote inferior; acompañan a la deformación.
-    function drawLights(dot, x, y, r, isPlayer) {
+    function drawLights(dot, x, y, r, strength) {
       const { count, h } = dot;
       const stretch = angle => 1 + h[Math.round((angle / TAU) * count) % count];
       const top = stretch(TAU * 0.64);
       const bottom = stretch(TAU * 0.14);
-      context.fillStyle = isPlayer ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.62)';
+      context.fillStyle = `rgba(255, 255, 255, ${strength})`;
       context.beginPath();
       context.ellipse(x - r * 0.42 * top, y - r * 0.5 * top, r * 0.24, r * 0.12, -0.7, 0, TAU);
       context.fill();
@@ -234,7 +277,7 @@
       context.fill();
       context.lineCap = 'round';
       context.lineWidth = r * 0.07;
-      context.strokeStyle = isPlayer ? 'rgba(255, 250, 240, 0.75)' : 'rgba(255, 255, 255, 0.3)';
+      context.strokeStyle = strength > 0.9 ? 'rgba(255, 250, 240, 0.75)' : `rgba(255, 255, 255, ${strength * 0.48})`;
       context.beginPath();
       context.arc(x, y, r * 0.8 * bottom, TAU * 0.06, TAU * 0.2);
       context.stroke();
@@ -358,7 +401,11 @@
       rings = [];
     }
 
-    return { resize, draw, addRupture, clearEffects };
+    function setSkin(image) {
+      skin = image;
+    }
+
+    return { resize, draw, addRupture, clearEffects, setSkin };
   }
 
   root.DotsRender = { createRenderer };

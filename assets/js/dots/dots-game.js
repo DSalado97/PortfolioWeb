@@ -7,6 +7,7 @@
 
   const RECORD_KEY = 'dots-record';
   const MUTED_KEY = 'dots-silencio';
+  const SECRET = 'daniel';
   const DIRECTION_KEYS = {
     ArrowUp: [0, -1], KeyW: [0, -1],
     ArrowDown: [0, 1], KeyS: [0, 1],
@@ -62,6 +63,8 @@
     let toastTimer = 0;
     let shownCombo = 0;
     let muted = readMuted();
+    let typed = '';
+    let skinRequested = false;
 
     const pointer = { active: false, x: 0, y: 0 };
     const touch = { id: null, anchorX: 0, anchorY: 0, x: 0, y: 0 };
@@ -112,6 +115,27 @@
         // Sin almacenamiento disponible: la preferencia solo dura esta visita.
       }
       applyMuted();
+    }
+
+    /* --- Skin secreta --- */
+
+    // Recuerda las últimas letras pulsadas, sin tocar los controles (A y D también mueven).
+    function watchSecret(event) {
+      if (event.repeat || !/^[a-z]$/i.test(event.key)) return;
+      typed = (typed + event.key.toLowerCase()).slice(-SECRET.length);
+      if (typed === SECRET) loadSkin();
+    }
+
+    // La imagen solo se descarga al descubrirla.
+    function loadSkin() {
+      if (skinRequested || !stage.dataset.skin) return;
+      skinRequested = true;
+      const image = new Image();
+      image.addEventListener('load', () => renderer.setSkin(image));
+      image.addEventListener('error', () => {
+        skinRequested = false;
+      });
+      image.src = stage.dataset.skin;
     }
 
     /* --- Récord --- */
@@ -187,6 +211,7 @@
       renderer.clearEffects();
       clearTimeout(endTimer);
       endTimer = 0;
+      typed = '';
       accumulator = 0;
       keys.clear();
       touch.id = null;
@@ -324,6 +349,7 @@
 
       document.addEventListener('keydown', event => {
         if (event.ctrlKey || event.altKey || event.metaKey) return;
+        if (state === 'playing') watchSecret(event);
         if (event.key === 'F11' && document.fullscreenElement === stage) {
           event.preventDefault();
           document.exitFullscreen();
