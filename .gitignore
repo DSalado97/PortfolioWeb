@@ -43,8 +43,37 @@ assets/scss/
 # Logs
 *.log
 
-# Índice local de CodeGraph
+# Herramientas y agentes de IA (solo en local)
 .codegraph/
+.atl/
+.claude/
+.claude.json
+.mcp.json
+.codex/
+.opencode/
+opencode.json
+opencode.jsonc
+.agents/
+.copilot/
+.github/copilot-instructions.md
+.cursor/
+.cursorrules
+.cursorignore
+.windsurf/
+.windsurfrules
+.gemini/
+.aider*
+.cline/
+.clinerules
+.roo/
+.continue/
+.junie/
+openspec/
+AGENTS.md
+AGENTS.*.md
+CLAUDE.md
+CLAUDE.*.md
+GEMINI.md
 
 # Versión imprimible del CV (contiene datos personales)
 CV/
