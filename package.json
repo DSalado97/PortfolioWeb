@@ -2,7 +2,7 @@
   "name": "portfolio-web-daniel",
   "version": "1.0.0",
   "private": true,
-  "description": "Portfolio de Daniel Salado conectado a MongoDB",
+  "description": "Portfolio de Daniel Salado: web estática generada desde MongoDB local",
   "main": "server.js",
   "engines": {
     "node": ">=20"
@@ -13,8 +13,7 @@
     "snapshot": "node scripts/exportar-snapshot.js && node scripts/sincronizar-html.js",
     "sincronizar": "node scripts/sincronizar-html.js",
     "verificar": "node scripts/verificar.js",
-    "actualizar:mongo": "node scripts/actualizar-mongo.js",
-    "migrate:atlas": "node scripts/migrate-to-atlas.js"
+    "completar:mongo": "node scripts/completar-mongo.js"
   },
   "dependencies": {
     "dotenv": "^16.4.7",
