@@ -7,12 +7,12 @@
  *
  * Uso:
  *   node scripts/exportar-snapshot.js                 # lee de MongoDB (MONGODB_URI del .env)
- *   node scripts/exportar-snapshot.js --api <URL>     # lee de una API ya desplegada (solo GET)
- *   node scripts/exportar-snapshot.js --forzar        # no aborta si faltan archivos de imagen/vídeo
+ *   node scripts/exportar-snapshot.js --forzar        # no aborta si faltan archivos o se pierde contenido
  *   node scripts/exportar-snapshot.js --salida ruta   # otro archivo de salida
  *
- * Se eliminan siempre los datos que no deben ser públicos (_id, teléfono y
- * fecha de nacimiento). Después de exportar, ejecuta `npm run sincronizar`
+ * Se eliminan siempre los datos que no deben ser públicos (_id, teléfono, fecha
+ * de nacimiento y notas internas) y se aborta si la base de datos tiene menos
+ * contenido que el snapshot publicado. Después, ejecuta `npm run sincronizar`
  * (o usa `npm run snapshot`, que hace las dos cosas) para regenerar el HTML.
  */
 
@@ -21,7 +21,7 @@ const path = require('node:path');
 
 const rootDir = path.join(__dirname, '..');
 const defaultOutput = path.join(rootDir, 'assets', 'data', 'portfolio.json');
-const FORBIDDEN_KEYS = new Set(['_id', 'telefono', 'nacimiento']);
+const FORBIDDEN_KEYS = new Set(['_id', 'telefono', 'nacimiento', 'nota', 'orden']);
 
 function getOption(name) {
   const index = process.argv.indexOf(name);
@@ -59,13 +59,13 @@ function sanitize(value) {
 }
 
 async function readFromMongo() {
-  require('dotenv').config();
+  require('dotenv').config({ quiet: true });
   const { MongoClient } = require('mongodb');
   const uri = process.env.MONGODB_URI;
   if (!uri) {
     throw new Error('Falta MONGODB_URI (defínela en .env o como variable de entorno).');
   }
-  const client = new MongoClient(uri);
+  const client = new MongoClient(uri, { serverSelectionTimeoutMS: 5000 });
   try {
     await client.connect();
     const database = client.db(process.env.MONGODB_DB_NAME || 'portfolio_daniel');
@@ -73,9 +73,9 @@ async function readFromMongo() {
     const [perfil, proyectos, habilidades, experiencia, formacion, contacto] = await Promise.all([
       database.collection('perfil').findOne({}),
       readCollection('proyectos'),
-      readCollection('habilidades'),
-      readCollection('experiencia', { _id: -1 }),
-      readCollection('formacion', { _id: -1 }),
+      readCollection('habilidades', { orden: 1, _id: 1 }),
+      readCollection('experiencia', { orden: 1, _id: -1 }),
+      readCollection('formacion', { orden: 1, _id: -1 }),
       database.collection('contacto').findOne({})
     ]);
     return { perfil, proyectos, habilidades, experiencia, formacion, contacto };
@@ -84,12 +84,24 @@ async function readFromMongo() {
   }
 }
 
-async function readFromApi(url) {
-  const response = await fetch(url, { headers: { Accept: 'application/json' } });
-  if (!response.ok) {
-    throw new Error(`La API respondió con ${response.status}`);
-  }
-  return response.json();
+// Contenido publicado que ya no está en los datos nuevos (evita borrar entradas sin querer).
+function findLostContent(previous, next) {
+  const lost = [];
+  const compare = (label, before, after, keyOf) => {
+    const keys = new Set((after || []).map(keyOf));
+    (before || []).filter(entry => !keys.has(keyOf(entry))).forEach(entry => lost.push(`${label}: ${keyOf(entry)}`));
+  };
+  compare('proyecto', previous.proyectos, next.proyectos, entry => entry.slug);
+  compare('experiencia', previous.experiencia, next.experiencia, entry => `${entry.puesto} — ${entry.empresa}`);
+  compare('formación', previous.formacion, next.formacion, entry => entry.titulo);
+  compare('categoría', previous.habilidades, next.habilidades, entry => entry.categoria);
+  (previous.habilidades || []).forEach(category => {
+    const match = (next.habilidades || []).find(entry => entry.categoria === category.categoria);
+    if (match) {
+      compare(`habilidad de ${category.categoria}`, category.items, match.items, item => item.nombre);
+    }
+  });
+  return lost;
 }
 
 function checkLocalFiles(snapshot) {
@@ -110,9 +122,8 @@ function checkLocalFiles(snapshot) {
 }
 
 async function main() {
-  const apiUrl = getOption('--api');
   const outputPath = path.resolve(getOption('--salida') || defaultOutput);
-  const raw = apiUrl ? await readFromApi(apiUrl) : await readFromMongo();
+  const raw = await readFromMongo();
 
   const snapshot = sanitize({
     generado: new Date().toISOString(),
@@ -128,11 +139,20 @@ async function main() {
   if (missing.length && !process.argv.includes('--forzar')) {
     console.error('Los datos apuntan a archivos que no existen en el proyecto:');
     missing.forEach(item => console.error(`  - ${item}`));
-    console.error('\nSi los datos de MongoDB aún tienen las rutas antiguas (GIF/PNG), ejecuta antes:');
-    console.error('  npm run actualizar:mongo -- --aplicar');
-    console.error('o repite con --forzar para exportar igualmente.');
+    console.error('\nCorrige las rutas en MongoDB o repite con --forzar.');
     process.exitCode = 1;
     return;
+  }
+
+  if (fs.existsSync(defaultOutput)) {
+    const lost = findLostContent(JSON.parse(fs.readFileSync(defaultOutput, 'utf8')), snapshot);
+    if (lost.length && !process.argv.includes('--forzar')) {
+      console.error('La base de datos no tiene contenido que sí está publicado:');
+      lost.forEach(item => console.error(`  - ${item}`));
+      console.error('\nNo se ha exportado nada. Añádelo a MongoDB o repite con --forzar si quieres retirarlo.');
+      process.exitCode = 1;
+      return;
+    }
   }
 
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });

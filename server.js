@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ quiet: true });
 
 const express = require('express');
 const path = require('node:path');
@@ -53,9 +53,9 @@ async function readPortfolio() {
   const [perfil, proyectos, habilidades, experiencia, formacion, contacto] = await Promise.all([
     database.collection('perfil').findOne({}),
     readCollection(database, 'proyectos'),
-    readCollection(database, 'habilidades'),
-    readCollection(database, 'experiencia', { _id: -1 }),
-    readCollection(database, 'formacion', { _id: -1 }),
+    readCollection(database, 'habilidades', { orden: 1, _id: 1 }),
+    readCollection(database, 'experiencia', { orden: 1, _id: -1 }),
+    readCollection(database, 'formacion', { orden: 1, _id: -1 }),
     database.collection('contacto').findOne({})
   ]);
 
@@ -70,7 +70,7 @@ async function readPortfolio() {
 }
 
 // La lectura completa del portfolio se cachea unos minutos para no consultar
-// MongoDB en cada petición (y que el plan gratuito de Render responda antes).
+// MongoDB en cada petición.
 const PORTFOLIO_CACHE_TTL_MS = 5 * 60 * 1000;
 let portfolioCache = { value: null, expiresAt: 0 };
 
