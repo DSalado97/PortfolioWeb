@@ -55,7 +55,7 @@ async function readPortfolio() {
     readCollection(database, 'proyectos'),
     readCollection(database, 'habilidades'),
     readCollection(database, 'experiencia', { _id: -1 }),
-    readCollection(database, 'formacion'),
+    readCollection(database, 'formacion', { _id: -1 }),
     database.collection('contacto').findOne({})
   ]);
 
