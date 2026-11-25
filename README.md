@@ -27,10 +27,12 @@ portfolio-web/
 ├── assets/
 │   ├── css/main.css                    # Estilos principales
 │   ├── data/portfolio.json             # Snapshot del contenido (sin datos privados)
+│   ├── downloads/dots.html             # Dots en un solo archivo (generado, no editar)
 │   ├── js/
 │   │   ├── main.js                     # Interactividad (menú, tema, filtros, acordeones, hero)
 │   │   ├── portfolio-render.js         # Generadores de HTML (navegador y Node)
-│   │   └── portfolio-data.js           # Carga el snapshot y actualiza la portada si cambió
+│   │   ├── portfolio-data.js           # Carga el snapshot y actualiza la portada si cambió
+│   │   └── dots/                       # Juego Dots: simulación, dibujo, sonido y controles
 │   ├── img/                            # Imágenes WebP/JPG, iconos y og-image
 │   │   └── projects/                   # Miniaturas, vídeos WebM/MP4 y pósters
 │   └── vendor/                         # Librerías de terceros (no modificar)
@@ -38,6 +40,7 @@ portfolio-web/
 │   ├── exportar-snapshot.js            # MongoDB local → assets/data/portfolio.json
 │   ├── sincronizar-html.js             # snapshot → bloques estáticos de index.html
 │   ├── completar-mongo.js              # Añade a MongoDB lo publicado que le falte (ensayo por defecto)
+│   ├── empaquetar-dots.js              # Genera assets/downloads/dots.html
 │   └── verificar.js                    # Comprobaciones automáticas
 └── .gitignore
 ```
@@ -62,6 +65,7 @@ El orden de experiencia, formación y habilidades lo marca el campo `orden` (1 =
 | `npm run snapshot` | MongoDB → snapshot JSON → HTML estático |
 | `npm run sincronizar` | Regenera el HTML estático desde el snapshot |
 | `npm run verificar` | Comprobaciones automáticas (pesos, alt, rutas, privacidad, SEO, sintaxis…). Sale con código 1 si algo falla |
+| `npm run empaquetar:dots` | Regenera la versión descargable de Dots. Hazlo tras cambiar el juego (JS, estilos o marcado) |
 | `npm run completar:mongo` | Ensayo: qué contenido publicado falta en MongoDB local (`-- --aplicar` para añadirlo) |
 
 ## Servidor local opcional

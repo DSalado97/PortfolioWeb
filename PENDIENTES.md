@@ -9,6 +9,8 @@ Tareas que requieren datos personales o decisiones tuyas.
 3. **Descripción del perfil**: es genérica; conviene sustituirla por logros concretos y el rol de ciberseguridad.
 4. **Proyecto de ciberseguridad** (CTF, write-ups, laboratorio) que respalde el nuevo perfil.
 5. **Textos de detalle de proyecto**: `portfolio-details-*.html` lleva su propio texto; no se genera desde MongoDB.
+6. **Tarjeta de Dots**: la portada aún dice «Juego móvil inspirado en Agar.io» y el resto de campos describe la versión Android. Actualizar `descripcion_corta`, `descripcion_larga`, `mecanicas`, `tecnicas_programacion` y `tecnologias` en MongoDB y ejecutar `npm run snapshot`.
+7. **Vídeos de Dots**: ya no se usan en su página, pero `video` en MongoDB los sigue citando. Quitar el campo antes de borrar los archivos.
 
 ## Cuentas externas
 

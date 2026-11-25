@@ -356,6 +356,20 @@ check('Existe 404.html', fs.existsSync(path.join(rootDir, '404.html')) ? [] : ['
   check('index.html está sincronizado con assets/data/portfolio.json', failures);
 })();
 
+// 13. Versión descargable de Dots al día
+(function checkDotsDownload() {
+  const failures = [];
+  try {
+    const { generarDescargable, outputFile } = require('./empaquetar-dots.js');
+    if (!fs.existsSync(outputFile) || read(outputFile).replace(/\r\n/g, '\n') !== generarDescargable()) {
+      failures.push(`${rel(outputFile)} no coincide con las fuentes. Ejecuta: npm run empaquetar:dots`);
+    }
+  } catch (error) {
+    failures.push(`No se pudo comprobar la versión descargable de Dots: ${error.message}`);
+  }
+  check('assets/downloads/dots.html está al día con el juego', failures);
+})();
+
 // Informe
 let failed = 0;
 for (const { name, failures } of results) {

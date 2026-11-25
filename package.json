@@ -12,6 +12,7 @@
     "dev": "node --watch server.js",
     "snapshot": "node scripts/exportar-snapshot.js && node scripts/sincronizar-html.js",
     "sincronizar": "node scripts/sincronizar-html.js",
+    "empaquetar:dots": "node scripts/empaquetar-dots.js",
     "verificar": "node scripts/verificar.js",
     "completar:mongo": "node scripts/completar-mongo.js"
   },

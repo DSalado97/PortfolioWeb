@@ -1,0 +1,2489 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Dots</title>
+  <meta name="description" content="Dots, de Daniel Salado. Versión para jugar sin conexión.">
+  <style>
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow: hidden;
+  background-color: #e3d3b4;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.5;
+}
+
+/* De aquí a «FIN JUEGO DOTS» se copia en la versión descargable (npm run empaquetar:dots). */
+
+.dots-game {
+  --dots-ink: #4d4130;
+  --dots-ink-soft: #6f614b;
+  --dots-paper: rgba(255, 252, 245, 0.94);
+  --dots-line: rgba(120, 95, 55, 0.22);
+  --dots-accent: #2f6f73;
+  position: relative;
+  width: 100%;
+  height: clamp(320px, 62vh, 720px);
+  height: clamp(320px, 62svh, 720px);
+  overflow: hidden;
+  border-radius: 14px;
+  background-color: #e3d3b4;
+  color: var(--dots-ink);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.dots-game:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+}
+
+.dots-game [hidden] {
+  display: none !important;
+}
+
+.dots-canvas {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Solo se captura el gesto mientras se juega: en el menú la página se desplaza normal. */
+.dots-game[data-state="playing"] .dots-canvas {
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.dots-hud {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  gap: 18px;
+  margin: 0;
+  padding: 8px 16px;
+  border-radius: 12px;
+  background-color: rgba(255, 252, 245, 0.78);
+  font-size: 13px;
+  line-height: 1.25;
+  pointer-events: none;
+}
+
+.dots-game[data-state="menu"] .dots-hud,
+.dots-game[data-state="ended"] .dots-hud {
+  display: none;
+}
+
+.dots-hud dt {
+  font-weight: 400;
+  color: var(--dots-ink-soft);
+}
+
+.dots-hud dd {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.dots-hud-filled {
+  min-width: 92px;
+}
+
+.dots-bar {
+  display: block;
+  height: 4px;
+  margin-top: 2px;
+  overflow: hidden;
+  border-radius: 4px;
+  background-color: var(--dots-line);
+}
+
+.dots-bar > span {
+  display: block;
+  height: 100%;
+  background-color: var(--dots-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.dots-buttons {
+  position: absolute;
+  z-index: 3;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  gap: 8px;
+}
+
+.dots-icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background-color: rgba(255, 252, 245, 0.78);
+  color: var(--dots-ink);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dots-icon-button:hover {
+  background-color: #fffdf8;
+}
+
+.dots-icon-button svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dots-game .dots-icon-compress,
+.dots-game .dots-icon-muted,
+.dots-game.is-fullscreen .dots-icon-expand,
+.dots-game.is-muted .dots-icon-sound {
+  display: none;
+}
+
+.dots-game.is-fullscreen .dots-icon-compress,
+.dots-game.is-muted .dots-icon-muted {
+  display: block;
+}
+
+.dots-combo {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 96px;
+  padding: 6px 16px 9px;
+  border-radius: 12px;
+  background-color: rgba(255, 252, 245, 0.78);
+  line-height: 1.1;
+  opacity: 0;
+  transform: translate(-50%, -8px);
+  transition: opacity 0.25s, transform 0.25s;
+  pointer-events: none;
+}
+
+.dots-combo.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.dots-game[data-state="menu"] .dots-combo,
+.dots-game[data-state="ended"] .dots-combo {
+  display: none;
+}
+
+.dots-combo-label {
+  color: var(--dots-ink-soft);
+  font-size: 13px;
+}
+
+.dots-combo-count {
+  color: var(--dots-accent);
+  font-size: 28px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.dots-combo .dots-bar {
+  width: 100%;
+}
+
+.dots-toast {
+  position: absolute;
+  z-index: 4;
+  bottom: 22px;
+  left: 50%;
+  width: max-content;
+  max-width: calc(100% - 32px);
+  padding: 10px 20px;
+  border-radius: 12px;
+  background-color: rgba(60, 50, 36, 0.9);
+  color: #fffaf0;
+  font-size: 16px;
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, 10px);
+  transition: opacity 0.3s, transform 0.3s, visibility 0s linear 0.3s;
+  pointer-events: none;
+}
+
+.dots-toast.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+  transition-delay: 0s;
+}
+
+.dots-panel {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background-color: rgba(227, 211, 180, 0.45);
+}
+
+.dots-panel-box {
+  width: min(400px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  padding: 28px 28px 30px;
+  border-radius: 24px;
+  background-color: var(--dots-paper);
+  text-align: center;
+}
+
+.dots-panel-title {
+  margin: 0 0 8px;
+  font-family: var(--heading-font, sans-serif);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.dots-panel-text {
+  margin: 0 0 20px;
+  color: var(--dots-ink-soft);
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.dots-panel-stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 24px;
+  margin: 0 0 22px;
+}
+
+.dots-panel-stats dt {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--dots-ink-soft);
+}
+
+.dots-panel-stats dd {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.dots-panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.dots-button {
+  min-height: 46px;
+  padding: 10px 28px;
+  border: 2px solid var(--dots-accent);
+  border-radius: 50px;
+  background-color: var(--dots-accent);
+  color: #ffffff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dots-button:hover {
+  background-color: #255a5e;
+}
+
+.dots-button-secondary {
+  background-color: transparent;
+  color: var(--dots-accent);
+}
+
+.dots-button-secondary:hover {
+  background-color: rgba(47, 111, 115, 0.12);
+}
+
+.dots-game button:focus-visible {
+  outline: 3px solid var(--dots-ink);
+  outline-offset: 3px;
+}
+
+/* El lienzo recibe el foco al jugar; el marco va por dentro para que no se recorte. */
+.dots-game .dots-canvas:focus-visible {
+  outline: 2px solid rgba(77, 65, 48, 0.45);
+  outline-offset: -2px;
+}
+
+@media (max-width: 575px) {
+  .dots-hud {
+    gap: 12px;
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .dots-hud dd {
+    font-size: 15px;
+  }
+
+  .dots-hud-filled {
+    min-width: 64px;
+  }
+
+  .dots-buttons {
+    flex-direction: column;
+  }
+
+  .dots-combo {
+    top: 74px;
+  }
+
+  .dots-combo-count {
+    font-size: 24px;
+  }
+
+  .dots-panel-box {
+    padding: 22px 20px 24px;
+  }
+
+  .dots-panel-stats {
+    gap: 10px 18px;
+  }
+}
+
+.dots-game {
+  height: 100vh;
+  height: 100svh;
+  border-radius: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+  }
+}
+  </style>
+</head>
+
+<body>
+  <div id="dots-game" class="dots-game" data-state="menu">
+          <canvas id="dots-canvas" class="dots-canvas" tabindex="0" role="img"
+            aria-label="Arena de juego de Dots. Se juega con el ratón, el dedo, las flechas o WASD.">
+            Tu navegador no puede mostrar el juego.
+          </canvas>
+
+          <dl class="dots-hud">
+            <div><dt>Tiempo</dt><dd id="dots-time">0:00</dd></div>
+            <div><dt>Comidos</dt><dd id="dots-eaten">0</dd></div>
+            <div class="dots-hud-filled">
+              <dt>Arena</dt>
+              <dd><span id="dots-filled">0 %</span><span class="dots-bar" aria-hidden="true"><span id="dots-bar"></span></span></dd>
+            </div>
+          </dl>
+
+          <div class="dots-buttons">
+            <button type="button" id="dots-pause" class="dots-icon-button" aria-label="Pausar" title="Pausar (Esc)" hidden>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg>
+            </button>
+            <button type="button" id="dots-sound" class="dots-icon-button" aria-label="Silenciar" title="Silenciar (M)">
+              <svg class="dots-icon-sound" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5zM15.5 9a4.2 4.2 0 0 1 0 6M18 6.2a8.2 8.2 0 0 1 0 11.6"/></svg>
+              <svg class="dots-icon-muted" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5zM16 9.5l5 5M21 9.5l-5 5"/></svg>
+            </button>
+            <button type="button" id="dots-fullscreen" class="dots-icon-button" aria-label="Pantalla completa" title="Pantalla completa">
+              <svg class="dots-icon-expand" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+              <svg class="dots-icon-compress" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>
+            </button>
+          </div>
+
+          <div id="dots-combo" class="dots-combo" aria-hidden="true">
+            <span class="dots-combo-label">Combo</span>
+            <span id="dots-combo-count" class="dots-combo-count">×2</span>
+            <span class="dots-bar"><span id="dots-combo-bar"></span></span>
+          </div>
+
+          <div id="dots-toast" class="dots-toast" role="status" aria-live="polite"></div>
+
+          <div id="dots-panel" class="dots-panel" role="dialog" aria-labelledby="dots-panel-title" aria-describedby="dots-panel-text">
+            <div class="dots-panel-box">
+              <p id="dots-panel-title" class="dots-panel-title">Dots</p>
+              <p id="dots-panel-text" class="dots-panel-text">Come los puntos más pequeños, esquiva los grandes y crece hasta llenar la arena.</p>
+              <dl id="dots-panel-stats" class="dots-panel-stats" hidden></dl>
+              <div class="dots-panel-actions">
+                <button type="button" id="dots-primary" class="dots-button">Jugar</button>
+                <button type="button" id="dots-restart" class="dots-button dots-button-secondary" hidden>Reiniciar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+  <script>
+/**
+ * Dots: simulación del juego (sin DOM ni canvas).
+ *
+ * Cada punto es un globo de agua: un centro y un anillo de radios unidos por
+ * muelles que ondula y conserva su área. Al comer, los dos puntos se unen como
+ * pompas de jabón. Este archivo funciona en el navegador (window.DotsCore) y en
+ * Node (require), lo que permite simular partidas sin pantalla.
+ */
+(function (root, factory) {
+  'use strict';
+  if (typeof module === 'object' && module.exports) {
+    module.exports = factory();
+  } else {
+    root.DotsCore = factory();
+  }
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  const TAU = Math.PI * 2;
+  const STEP = 1 / 120;
+
+  const CONFIG = {
+    arenaRadius: 2400,
+    startRadius: 20,
+    // Duración de referencia: marca la curva de crecimiento esperada (segundos).
+    targetTime: 310,
+    // Relaciones de tamaño respecto al jugador.
+    edibleRatio: 0.92,
+    deadlyRatio: 1.1,
+    // Roce permitido antes de que se forme la pompa (fracción del radio menor).
+    eatOverlap: 0.05,
+    deathOverlap: 0.14,
+    // Desde esta fracción del radio de la arena los grandes solo asoman por el borde.
+    peekFrom: 0.3,
+    // Desde esta fracción ya no hay peligro: solo queda llenar la arena.
+    frenzyFrom: 0.9,
+    winAt: 0.985,
+    // Velocidad del jugador en «medias pantallas» por segundo, al empezar y al acabar.
+    speedStart: 0.95,
+    speedEnd: 0.62,
+    // Segundos sin comer que rompen el combo.
+    comboWindow: 3
+  };
+
+  // Colores pastel de los puntos: [base, claro, oscuro].
+  const PALETTE = [
+    ['#f7b5b0', '#fde0dd', '#e08f88'],
+    ['#f9cba0', '#fee8d2', '#e2a873'],
+    ['#f5dc8f', '#fdf1c9', '#dcbc5f'],
+    ['#c9e0a2', '#e8f3d4', '#a3c274'],
+    ['#a5dcbc', '#d6f1e1', '#77bf97'],
+    ['#9fdbd8', '#d3f1ef', '#70bcb8'],
+    ['#a6cff0', '#d8eafa', '#76aad6'],
+    ['#b6bdf0', '#dfe3fb', '#8c95d8'],
+    ['#d0b5ec', '#ebdffa', '#ac8ad2'],
+    ['#f2b4d4', '#fbdfed', '#d889b2']
+  ];
+
+  const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const smoothstep = (a, b, value) => {
+    const t = clamp((value - a) / (b - a), 0, 1);
+    return t * t * (3 - 2 * t);
+  };
+
+  // Generador pseudoaleatorio con semilla (mulberry32).
+  function createRandom(seed) {
+    let state = seed >>> 0;
+    return function random() {
+      state = (state + 0x6D2B79F5) | 0;
+      let t = Math.imul(state ^ (state >>> 15), 1 | state);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  // Tablas de direcciones de los nodos del anillo, compartidas por número de nodos.
+  const directionTables = new Map();
+  function getDirections(count) {
+    let table = directionTables.get(count);
+    if (!table) {
+      const cos = new Float64Array(count);
+      const sin = new Float64Array(count);
+      for (let i = 0; i < count; i++) {
+        cos[i] = Math.cos((i / count) * TAU);
+        sin[i] = Math.sin((i / count) * TAU);
+      }
+      table = { cos, sin };
+      directionTables.set(count, table);
+    }
+    return table;
+  }
+
+  function getNodeCount(relativeRadius) {
+    if (relativeRadius < 0.05) return 16;
+    if (relativeRadius < 0.1) return 24;
+    if (relativeRadius < 0.22) return 40;
+    if (relativeRadius < 0.45) return 64;
+    return 96;
+  }
+
+  /* ---------------------------------------------------------------------
+   * Globo de agua: anillo elástico de radios
+   * ------------------------------------------------------------------- */
+
+  function setNodes(dot, count) {
+    if (dot.count === count) return;
+    const h = new Float64Array(count);
+    const hv = new Float64Array(count);
+    if (dot.count) {
+      for (let i = 0; i < count; i++) {
+        const position = (i / count) * dot.count;
+        const a = Math.floor(position) % dot.count;
+        const b = (a + 1) % dot.count;
+        const t = position - Math.floor(position);
+        h[i] = lerp(dot.h[a], dot.h[b], t);
+        hv[i] = lerp(dot.hv[a], dot.hv[b], t);
+      }
+    }
+    dot.count = count;
+    dot.h = h;
+    dot.hv = hv;
+  }
+
+  // Deforma el globo con un modo (2 = óvalo, 3 = triángulo...) en un ángulo dado.
+  function exciteMode(dot, mode, angle, amount) {
+    const { count, hv } = dot;
+    for (let i = 0; i < count; i++) {
+      hv[i] += Math.cos(mode * ((i / count) * TAU - angle)) * amount;
+    }
+  }
+
+  // Bulto de área conocida en una dirección (absorción de presas diminutas).
+  function addBump(dot, angle, areaRatio, width) {
+    const { count, h } = dot;
+    const spread = Math.max(width, (TAU / count) * 1.6);
+    const height = Math.min(0.3, (areaRatio * Math.PI) / (spread * Math.sqrt(TAU)));
+    for (let i = 0; i < count; i++) {
+      let delta = Math.abs((i / count) * TAU - angle) % TAU;
+      if (delta > Math.PI) delta = TAU - delta;
+      h[i] += height * Math.exp(-(delta * delta) / (2 * spread * spread));
+    }
+  }
+
+  // Mantiene el área: lo que se hunde por un lado sale por el resto del contorno.
+  function conserveArea(dot) {
+    const { count, h } = dot;
+    let sum = 0;
+    for (let i = 0; i < count; i++) {
+      h[i] = clamp(h[i], -0.75, 1.6);
+      sum += (1 + h[i]) * (1 + h[i]);
+    }
+    const scale = Math.sqrt(count / sum);
+    for (let i = 0; i < count; i++) {
+      h[i] = (1 + h[i]) * scale - 1;
+    }
+  }
+
+  function stepRing(dot, dt, viewRadius) {
+    const { count, h, hv } = dot;
+    // Los globos grandes ondulan más despacio.
+    const relative = dot.r / viewRadius;
+    const waveSpeed = 6.2 * clamp(Math.pow(0.12 / Math.max(relative, 0.01), 0.3), 0.5, 1.15);
+    const stiffness = waveSpeed * waveSpeed * Math.pow(count / TAU, 2);
+    const restore = 26;
+    const damping = 2.1;
+    const viscosity = 0.024 * Math.pow(count / TAU, 2);
+    const first = h[0];
+    const firstVelocity = hv[0];
+    let previous = h[count - 1];
+    let previousVelocity = hv[count - 1];
+    for (let i = 0; i < count; i++) {
+      const current = h[i];
+      const currentVelocity = hv[i];
+      const next = i + 1 < count ? h[i + 1] : first;
+      const nextVelocity = i + 1 < count ? hv[i + 1] : firstVelocity;
+      const force = stiffness * (next - 2 * current + previous)
+        - restore * current
+        - damping * currentVelocity
+        + viscosity * (nextVelocity - 2 * currentVelocity + previousVelocity);
+      hv[i] = currentVelocity + force * dt;
+      previous = current;
+      previousVelocity = currentVelocity;
+    }
+    for (let i = 0; i < count; i++) {
+      h[i] += hv[i] * dt;
+    }
+    conserveArea(dot);
+  }
+
+  // Aplana el contorno contra un plano situado a `distance` en la dirección (nx, ny).
+  function flatten(dot, nx, ny, distance, strength) {
+    const { count, h, hv } = dot;
+    const { cos, sin } = getDirections(count);
+    const plane = Math.max(distance, dot.r * 0.3);
+    for (let i = 0; i < count; i++) {
+      const projection = cos[i] * nx + sin[i] * ny;
+      if (projection < 0.12) continue;
+      const limit = plane / (dot.r * projection) - 1;
+      if (h[i] > limit) {
+        h[i] += (limit - h[i]) * strength;
+        if (hv[i] > 0) hv[i] *= 1 - strength;
+      }
+    }
+  }
+
+  /* ---------------------------------------------------------------------
+   * Partida
+   * ------------------------------------------------------------------- */
+
+  function createGame(options = {}) {
+    const random = createRandom(options.seed ?? Math.floor(Math.random() * 4294967296));
+    // Modo ligero: sin anillos (solo para simular partidas rápido).
+    const lite = Boolean(options.lite);
+    const R = CONFIG.arenaRadius;
+    const logRange = Math.log(R / CONFIG.startRadius);
+
+    let nextId = 1;
+    const between = (min, max) => min + (max - min) * random();
+
+    function createDot(x, y, r, color) {
+      const dot = {
+        id: nextId++,
+        x, y, r,
+        area: r * r,
+        vx: 0, vy: 0,
+        dirX: 0, dirY: 0, drift: 0,
+        color,
+        kind: 'food',
+        mass: r * r,
+        merging: null,
+        removed: false,
+        inks: [],
+        shine: 0,
+        count: 0, h: null, hv: null
+      };
+      setNodes(dot, getNodeCount(r / game.camera.viewRadius));
+      return dot;
+    }
+
+    const game = {
+      config: CONFIG,
+      state: 'playing',
+      time: 0,
+      endTime: 0,
+      eaten: 0,
+      combo: 0,
+      bestCombo: 0,
+      comboTime: 0,
+      frenzy: false,
+      player: null,
+      dots: [],
+      merges: [],
+      events: [],
+      threats: 0,
+      camera: { x: 0, y: 0, viewRadius: 200, halfWidth: 200, halfHeight: 200 },
+      aspect: options.aspect || 16 / 9,
+      domain: 400
+    };
+
+    // Progreso de 0 a 1 en escala logarítmica: crece a ritmo constante en la partida.
+    function getProgress(r = Math.sqrt(game.player.area)) {
+      return clamp(Math.log(r / CONFIG.startRadius) / logRange, 0, 1);
+    }
+
+    // Fracción de la media pantalla que ocupa el jugador: del 10 % al 90 %.
+    const getScreenFraction = progress => 0.1 + 0.8 * progress * progress;
+
+    function updateCameraShape() {
+      const { camera } = game;
+      const aspect = game.aspect;
+      camera.halfHeight = aspect >= 1 ? camera.viewRadius : camera.viewRadius / aspect;
+      camera.halfWidth = camera.halfHeight * aspect;
+      game.domain = Math.hypot(camera.halfWidth, camera.halfHeight) * 1.12;
+    }
+
+    function updateCamera(dt) {
+      const { camera, player } = game;
+      const progress = getProgress();
+      const targetRadius = Math.min(player.r / getScreenFraction(progress), R * 1.12);
+      camera.viewRadius += (targetRadius - camera.viewRadius) * (1 - Math.exp(-dt * 1.6));
+      // Cuando la arena empieza a caber en pantalla, la cámara se centra en ella.
+      const follow = 1 - smoothstep(0.5, 1, camera.viewRadius / R);
+      const rate = 1 - Math.exp(-dt * 7);
+      camera.x += (player.x * follow - camera.x) * rate;
+      camera.y += (player.y * follow - camera.y) * rate;
+      updateCameraShape();
+    }
+
+    /* --- Aparición de puntos --- */
+
+    const pickColor = () => Math.floor(random() * PALETTE.length);
+
+    // Tamaño de la comida: la mayoría pequeña y alguna pieza grande.
+    function pickFoodRadius(progress) {
+      const view = game.camera.viewRadius;
+      const player = game.player.r;
+      const pick = random();
+      let r;
+      if (pick < 0.62) r = between(0.018, 0.04 + 0.03 * progress) * view;
+      else if (pick < 0.9) r = between(0.035, 0.07 + 0.06 * progress) * view;
+      else r = between(0.5, 0.85) * Math.min(player, view * 0.3);
+      return Math.min(r, player * 0.86);
+    }
+
+    function setMotion(dot, targetX, targetY, speed) {
+      const dx = targetX - dot.x;
+      const dy = targetY - dot.y;
+      const length = Math.hypot(dx, dy) || 1;
+      dot.dirX = dx / length;
+      dot.dirY = dy / length;
+      dot.drift = speed;
+      dot.vx = dot.dirX * speed;
+      dot.vy = dot.dirY * speed;
+    }
+
+    // Punto de paso al azar, dentro de la pantalla y de la arena.
+    function pickTarget() {
+      const { camera } = game;
+      const angle = random() * TAU;
+      const distance = Math.sqrt(random()) * Math.min(camera.viewRadius * 1.1, R * 0.95);
+      let x = camera.x + Math.cos(angle) * distance * (camera.viewRadius < R * 0.6 ? camera.halfWidth / camera.viewRadius : 1);
+      let y = camera.y + Math.sin(angle) * distance * (camera.viewRadius < R * 0.6 ? camera.halfHeight / camera.viewRadius : 1);
+      const fromCenter = Math.hypot(x, y);
+      if (fromCenter > R * 0.95) {
+        x *= (R * 0.95) / fromCenter;
+        y *= (R * 0.95) / fromCenter;
+      }
+      return { x, y };
+    }
+
+    // Ángulo de entrada: si el jugador avanza, aparecen más por delante.
+    function pickEntryAngle() {
+      const { player, camera } = game;
+      const speed = Math.hypot(player.vx, player.vy);
+      if (speed > camera.viewRadius * 0.25 && random() < 0.65) {
+        return Math.atan2(player.vy, player.vx) + between(-1.1, 1.1);
+      }
+      return random() * TAU;
+    }
+
+    function finishSpawn(dot) {
+      if (!lite) {
+        exciteMode(dot, 2, random() * TAU, between(0.2, 0.7));
+        exciteMode(dot, 3, random() * TAU, between(0.1, 0.4));
+      }
+      game.dots.push(dot);
+      return dot;
+    }
+
+    function spawnFood(progress, scattered) {
+      const { camera } = game;
+      const r = pickFoodRadius(progress);
+      let x;
+      let y;
+      if (scattered) {
+        const angle = random() * TAU;
+        const distance = Math.sqrt(random()) * game.domain;
+        x = camera.x + Math.cos(angle) * distance;
+        y = camera.y + Math.sin(angle) * distance;
+        if (Math.hypot(x - game.player.x, y - game.player.y) < game.player.r * 3 + r) return null;
+      } else {
+        const angle = pickEntryAngle();
+        const distance = game.domain * between(1, 1.06) + r;
+        x = camera.x + Math.cos(angle) * distance;
+        y = camera.y + Math.sin(angle) * distance;
+      }
+      // Los puntos solo aparecen fuera de la arena si la arena entera cabe en pantalla.
+      if (camera.viewRadius < R * 0.5 && Math.hypot(x, y) > R + camera.viewRadius * 0.4) return null;
+      const dot = createDot(x, y, r, pickColor());
+      const target = game.frenzy ? { x: between(-0.3, 0.3) * R, y: between(-0.3, 0.3) * R } : pickTarget();
+      const speed = game.frenzy ? between(0.3, 0.5) : between(0.06, 0.17) + 0.09 * progress;
+      setMotion(dot, target.x, target.y, speed * camera.viewRadius);
+      return finishSpawn(dot);
+    }
+
+    // Distancia mínima futura entre las trayectorias de dos puntos (segundos próximos).
+    function closestApproach(a, b, seconds) {
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const dvx = b.vx - a.vx;
+      const dvy = b.vy - a.vy;
+      const speed2 = dvx * dvx + dvy * dvy;
+      const t = speed2 > 1e-6 ? clamp(-(dx * dvx + dy * dvy) / speed2, 0, seconds) : 0;
+      return Math.hypot(dx + dvx * t, dy + dvy * t);
+    }
+
+    // Hueco libre exigido entre dos puntos peligrosos: menor según avanza la partida.
+    const getGap = progress => game.player.r * 2 * lerp(2.2, 1.35, progress);
+
+    // Los tamaños se comparan con el radio real del jugador, que nunca baja. El visible
+    // se hincha un instante al comer y, al relajarse, volvería mortal un punto parecido.
+    const getPlayerSize = () => Math.sqrt(game.player.area);
+
+    function isThreat(dot) {
+      return dot.r > getPlayerSize() * CONFIG.deadlyRatio;
+    }
+
+    function isEdible(dot) {
+      return dot.r <= getPlayerSize() * CONFIG.edibleRatio;
+    }
+
+    function respectsGap(candidate, progress) {
+      const gap = getGap(progress);
+      return game.dots.every(dot => !isThreat(dot)
+        || closestApproach(candidate, dot, 14) - dot.r - candidate.r > gap);
+    }
+
+    function spawnThreat(progress) {
+      const { camera, player } = game;
+      for (let attempt = 0; attempt < 6; attempt++) {
+        const maxRatio = lerp(2.1, 1.5, progress);
+        const r = Math.max(player.r * 1.16, Math.min(player.r * between(1.2, maxRatio), camera.viewRadius * 0.72));
+        const angle = pickEntryAngle();
+        const distance = game.domain * between(1, 1.08) + r;
+        const x = camera.x + Math.cos(angle) * distance;
+        const y = camera.y + Math.sin(angle) * distance;
+        if (camera.viewRadius < R * 0.5 && Math.hypot(x, y) > R + r) continue;
+        const dot = createDot(x, y, r, pickColor());
+        const target = pickTarget();
+        setMotion(dot, target.x, target.y, (between(0.08, 0.17) + 0.07 * progress) * camera.viewRadius);
+        dot.kind = 'threat';
+        dot.mass *= 8;
+        if (respectsGap(dot, progress)) return finishSpawn(dot);
+      }
+      return null;
+    }
+
+    function isOnScreen(x, y, r) {
+      const { camera } = game;
+      const dx = Math.max(Math.abs(x - camera.x) - camera.halfWidth, 0);
+      const dy = Math.max(Math.abs(y - camera.y) - camera.halfHeight, 0);
+      return dx * dx + dy * dy < r * r;
+    }
+
+    // Un punto peligroso deja de contar cuando ya ha salido de la arena y se aleja.
+    function hasLeftArena(dot) {
+      return Math.hypot(dot.x, dot.y) - dot.r > R && dot.x * dot.vx + dot.y * dot.vy > 0;
+    }
+
+    // Final de partida: un punto mayor que no cabe en la arena cruza asomando por el borde.
+    // Siempre deja libre una franja algo más ancha que el jugador.
+    function spawnPeek(progress) {
+      const { player, camera } = game;
+      const ratio = player.r / R;
+      const r = player.r * between(1.14, lerp(1.5, 1.25, smoothstep(0.3, 0.9, ratio)));
+      const margin = lerp(0.42, 0.04, smoothstep(CONFIG.peekFrom, CONFIG.frenzyFrom, ratio));
+      const maxIntrusion = Math.min(2 * R - 2 * player.r * (1 + margin), R * 1.15);
+      const intrusion = Math.max(R * 0.04, maxIntrusion * between(0.72, 1));
+      const angle = random() * TAU;
+      const side = random() < 0.5 ? -1 : 1;
+      const offset = R - intrusion + r;
+      const nx = Math.cos(angle);
+      const ny = Math.sin(angle);
+      // Empieza justo fuera de la pantalla.
+      let along = 0;
+      while (isOnScreen(nx * offset - ny * along * side, ny * offset + nx * along * side, r * 1.08)) {
+        along += R * 0.05;
+      }
+      const dot = createDot(nx * offset - ny * along * side, ny * offset + nx * along * side, r, pickColor());
+      setMotion(dot, nx * offset + ny * along * side, ny * offset - nx * along * side,
+        lerp(0.46, 0.38, progress) * camera.viewRadius);
+      dot.kind = 'peek';
+      dot.mass *= 40;
+      return finishSpawn(dot);
+    }
+
+    let peekWait = 0;
+
+    function direct(dt) {
+      const { camera, player, domain } = game;
+      const progress = getProgress();
+      const view2 = camera.viewRadius * camera.viewRadius;
+      const domainArea = (Math.PI * domain * domain) / view2;
+      const ratio = player.r / R;
+
+      // Recoge los puntos que ya se alejan fuera de la zona de juego.
+      let food = 0;
+      let threats = 0;
+      let threatArea = 0;
+      for (const dot of game.dots) {
+        if (dot.merging) continue;
+        const dx = dot.x - camera.x;
+        const dy = dot.y - camera.y;
+        const distance = Math.hypot(dx, dy);
+        const leaving = dx * dot.vx + dy * dot.vy > 0;
+        if (distance - dot.r > domain * 1.1 && (leaving || distance - dot.r > domain * 1.6)) {
+          dot.removed = true;
+          continue;
+        }
+        if (isThreat(dot)) {
+          if (!hasLeftArena(dot)) threats++;
+          threatArea += (Math.PI * dot.r * dot.r) / view2;
+        } else {
+          food++;
+        }
+      }
+      game.dots = game.dots.filter(dot => !dot.removed);
+      game.threats = threats;
+
+      if (!game.frenzy && ratio >= CONFIG.frenzyFrom) {
+        game.frenzy = true;
+        game.events.push({ type: 'frenzy' });
+      }
+
+      // Comida: más densidad según avanza la partida.
+      const foodTarget = Math.round(domainArea * lerp(3.1, 3.7, progress) * (game.frenzy ? 1.3 : 1));
+      for (let i = 0; i < 4 && food < foodTarget; i++) {
+        if (spawnFood(progress, false)) food++;
+      }
+
+      if (game.frenzy) return;
+      if (ratio < CONFIG.peekFrom) {
+        const occupancy = lerp(0.016, 0.28, Math.pow(progress, 1.15));
+        if (game.time > 5 && threats < 14 && threatArea < domainArea * occupancy) {
+          spawnThreat(progress);
+        }
+      } else if (threats === 0) {
+        peekWait -= dt;
+        if (peekWait <= 0) {
+          spawnPeek(progress);
+          peekWait = between(0.2, 0.8);
+        }
+      }
+    }
+
+    /* --- Uniones de pompa de jabón --- */
+
+    function startMerge(eater, prey) {
+      const dx = prey.x - eater.x;
+      const dy = prey.y - eater.y;
+      const distance = Math.hypot(dx, dy) || 1;
+      const merge = {
+        eater, prey,
+        nx: dx / distance, ny: dy / distance,
+        distance,
+        time: 0,
+        duration: 0.09 + 0.1 * Math.min(1, prey.r / eater.r)
+      };
+      prey.merging = merge;
+      game.merges.push(merge);
+      game.events.push({ type: 'touch', merge });
+      if (prey === game.player) {
+        game.state = 'losing';
+        game.events.push({ type: 'losing' });
+      }
+    }
+
+    // Ganancia de área al comer: mantiene la partida cerca de los 5 minutos.
+    function getGain() {
+      const progress = getProgress();
+      const expected = clamp(game.time / CONFIG.targetTime, 0, 1);
+      const ahead = (progress - expected) * logRange;
+      const base = lerp(0.62, 0.8, progress);
+      if (game.frenzy) return 0.5;
+      return clamp(base * Math.exp(-3.4 * ahead), 0.06, 1.6);
+    }
+
+    function rupture(merge) {
+      const { eater, prey, nx, ny } = merge;
+      const angle = Math.atan2(ny, nx);
+      const preyArea = prey.r * prey.r;
+      const eaterArea = eater.r * eater.r;
+      const totalRadius = Math.sqrt(eaterArea + preyArea);
+      const relative = prey.r / eater.r;
+
+      if (!lite) {
+        const angularWidth = Math.asin(Math.min(0.95, prey.r / Math.max(merge.distance, 1)));
+        if (angularWidth > (TAU / eater.count) * 2.2) {
+          uniteProfiles(eater, prey, totalRadius);
+        } else {
+          addBump(eater, (angle + TAU) % TAU, preyArea / eaterArea, relative * 0.9);
+          // Onda que recorre todo el globo: se nota aunque la presa sea pequeña.
+          exciteMode(eater, 2, angle, Math.min(1.1, 0.25 + relative * 2));
+        }
+        eater.inks.push({
+          x: nx * Math.min(merge.distance, eater.r) / eater.r,
+          y: ny * Math.min(merge.distance, eater.r) / eater.r,
+          size: Math.max(relative, 0.06),
+          color: prey === game.player ? -1 : prey.color,
+          age: 0
+        });
+        if (eater.inks.length > 14) eater.inks.shift();
+        eater.shine = Math.max(eater.shine, Math.min(1, 0.35 + relative));
+      }
+
+      if (eater === game.player) {
+        game.eaten++;
+        game.combo++;
+        game.comboTime = CONFIG.comboWindow;
+        game.bestCombo = Math.max(game.bestCombo, game.combo);
+      }
+
+      const gain = eater === game.player ? getGain() : 1;
+      eater.area += preyArea * gain;
+      eater.r = totalRadius;
+      // Conserva la cantidad de movimiento del conjunto.
+      const share = preyArea / (eaterArea + preyArea);
+      eater.vx += (prey.vx - eater.vx) * share * 0.4;
+      eater.vy += (prey.vy - eater.vy) * share * 0.4;
+
+      game.events.push({
+        type: 'rupture',
+        x: prey.x - nx * prey.r, y: prey.y - ny * prey.r,
+        nx, ny, r: prey.r,
+        color: prey === game.player ? -1 : prey.color,
+        byPlayer: eater === game.player,
+        combo: game.combo,
+        relative
+      });
+
+      prey.removed = true;
+      prey.merging = null;
+      if (prey === game.player) {
+        eater.kind = 'food';
+        eater.drift *= 0.25;
+        game.state = 'lost';
+        game.endTime = game.time;
+        game.events.push({ type: 'lost' });
+      }
+    }
+
+    // El contorno nuevo es la silueta de los dos puntos vista desde su centro común;
+    // a partir de ahí la tensión del anillo lo redondea oscilando, como una pompa.
+    function uniteProfiles(eater, prey, totalRadius) {
+      const eaterArea = eater.r * eater.r;
+      const preyArea = prey.r * prey.r;
+      const share = preyArea / (eaterArea + preyArea);
+      const centerX = eater.x + (prey.x - eater.x) * share;
+      const centerY = eater.y + (prey.y - eater.y) * share;
+      const { count } = eater;
+      const { cos, sin } = getDirections(count);
+      const profile = new Float64Array(count);
+      const farHit = (cx, cy, r, ux, uy) => {
+        const dx = cx - centerX;
+        const dy = cy - centerY;
+        const along = dx * ux + dy * uy;
+        const across = dx * uy - dy * ux;
+        const inside = r * r - across * across;
+        return inside > 0 ? along + Math.sqrt(inside) : 0;
+      };
+      for (let i = 0; i < count; i++) {
+        const own = farHit(eater.x, eater.y, eater.r * (1 + eater.h[i] * 0.8), cos[i], sin[i]);
+        const other = farHit(prey.x, prey.y, prey.r, cos[i], sin[i]);
+        profile[i] = Math.max(own, other, totalRadius * 0.3);
+      }
+      // Suaviza el cuello que une ambos círculos.
+      for (let pass = 0; pass < 2; pass++) {
+        const copy = profile.slice();
+        for (let i = 0; i < count; i++) {
+          profile[i] = (copy[(i + count - 1) % count] + 2 * copy[i] + copy[(i + 1) % count]) / 4;
+        }
+      }
+      for (let i = 0; i < count; i++) {
+        eater.h[i] = profile[i] / totalRadius - 1;
+        eater.hv[i] *= 0.4;
+      }
+      eater.x = centerX;
+      eater.y = centerY;
+      conserveArea(eater);
+    }
+
+    function stepMerges(dt) {
+      if (!game.merges.length) return;
+      const pending = [];
+      for (const merge of game.merges) {
+        const { eater, prey } = merge;
+        if (eater.removed) {
+          prey.merging = null;
+          continue;
+        }
+        merge.time += dt;
+        const target = (eater.r + prey.r) * 0.92;
+        merge.distance += (target - merge.distance) * (1 - Math.exp(-dt * 16));
+        prey.x = eater.x + merge.nx * merge.distance;
+        prey.y = eater.y + merge.ny * merge.distance;
+        prey.vx = eater.vx;
+        prey.vy = eater.vy;
+        flattenPair(eater, prey, merge.nx, merge.ny, merge.distance, 0.6);
+        if (merge.time >= merge.duration) {
+          rupture(merge);
+        } else {
+          pending.push(merge);
+        }
+      }
+      game.merges = pending;
+      game.dots = game.dots.filter(dot => !dot.removed);
+    }
+
+    /* --- Choques --- */
+
+    // Plano de contacto entre dos globos (eje radical de sus círculos).
+    function flattenPair(a, b, nx, ny, distance, strength) {
+      if (lite) return;
+      const plane = (distance * distance + a.r * a.r - b.r * b.r) / (2 * distance);
+      flatten(a, nx, ny, plane, strength);
+      flatten(b, -nx, -ny, distance - plane, strength);
+    }
+
+    function collide(a, b, dt, scale) {
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const reach = a.r + b.r;
+      const distance2 = dx * dx + dy * dy;
+      if (distance2 >= reach * reach) return;
+      const distance = Math.sqrt(distance2) || 1e-3;
+      const nx = dx / distance;
+      const ny = dy / distance;
+      const overlap = reach - distance;
+      const smaller = Math.min(a.r, b.r);
+      const reduced = (a.mass * b.mass) / (a.mass + b.mass);
+      const frequency = 9;
+      const closing = (a.vx - b.vx) * nx + (a.vy - b.vy) * ny;
+      const squeeze = 1 + 3 * Math.min(1, overlap / smaller);
+      let force = reduced * (frequency * frequency * overlap * squeeze + 2 * 0.16 * frequency * closing) * scale;
+      force = Math.max(0, force);
+      const impulse = force * dt;
+      a.vx -= (impulse / a.mass) * nx;
+      a.vy -= (impulse / a.mass) * ny;
+      b.vx += (impulse / b.mass) * nx;
+      b.vy += (impulse / b.mass) * ny;
+      flattenPair(a, b, nx, ny, distance, 0.45);
+    }
+
+    function stepCollisions(dt) {
+      const { dots, player } = game;
+      for (let i = 0; i < dots.length; i++) {
+        const a = dots[i];
+        if (a.merging) continue;
+        for (let j = i + 1; j < dots.length; j++) {
+          const b = dots[j];
+          if (b.merging) continue;
+          const reach = a.r + b.r;
+          if (Math.abs(a.x - b.x) < reach && Math.abs(a.y - b.y) < reach) {
+            collide(a, b, dt, 1);
+          }
+        }
+      }
+      if (game.state !== 'playing') return;
+      for (const dot of dots) {
+        if (dot.merging) continue;
+        const dx = dot.x - player.x;
+        const dy = dot.y - player.y;
+        const reach = dot.r + player.r;
+        if (Math.abs(dx) >= reach || Math.abs(dy) >= reach) continue;
+        const overlap = reach - Math.hypot(dx, dy);
+        if (overlap <= 0) continue;
+        if (isEdible(dot)) {
+          if (overlap > dot.r * CONFIG.eatOverlap) startMerge(player, dot);
+          else flattenPair(player, dot, dx / (reach - overlap), dy / (reach - overlap), reach - overlap, 0.4);
+        } else if (isThreat(dot)) {
+          if (overlap > player.r * CONFIG.deathOverlap) {
+            startMerge(dot, player);
+            return;
+          }
+          collide(player, dot, dt, 0.35);
+        } else {
+          collide(player, dot, dt, 1);
+        }
+      }
+    }
+
+    /* --- Jugador --- */
+
+    function stepPlayer(dt, input) {
+      const { player, camera } = game;
+      const progress = getProgress();
+      const maxSpeed = camera.viewRadius * lerp(CONFIG.speedStart, CONFIG.speedEnd, progress);
+      let ix = input.x;
+      let iy = input.y;
+      const length = Math.hypot(ix, iy);
+      if (length > 1) {
+        ix /= length;
+        iy /= length;
+      }
+      const rate = 1 - Math.exp(-dt * 5.5);
+      const ax = (ix * maxSpeed - player.vx) * rate;
+      const ay = (iy * maxSpeed - player.vy) * rate;
+      player.vx += ax;
+      player.vy += ay;
+      player.x += player.vx * dt;
+      player.y += player.vy * dt;
+
+      if (!lite) {
+        // Al acelerar el agua se queda atrás; en marcha, el globo se estira un poco.
+        const acceleration = Math.hypot(ax, ay) / dt / maxSpeed;
+        if (acceleration > 0.02) {
+          exciteMode(player, 2, Math.atan2(ay, ax), acceleration * dt * 1.5);
+          exciteMode(player, 1, Math.atan2(-ay, -ax), acceleration * dt * 0.7);
+        }
+        const speed = Math.hypot(player.vx, player.vy) / maxSpeed;
+        exciteMode(player, 2, Math.atan2(player.vy, player.vx), speed * dt * 4.5);
+      }
+
+      // Borde de la arena: empuja el centro y aplasta el contorno.
+      const distance = Math.hypot(player.x, player.y);
+      const overlap = distance + player.r - R;
+      if (overlap > 0 && distance > 1e-6) {
+        const nx = player.x / distance;
+        const ny = player.y / distance;
+        const outward = player.vx * nx + player.vy * ny;
+        const pull = overlap * 150 * dt + Math.max(0, outward) * Math.min(1, dt * 9);
+        player.vx -= nx * pull;
+        player.vy -= ny * pull;
+        const maxOverlap = player.r * 0.16;
+        if (overlap > maxOverlap) {
+          player.x -= nx * (overlap - maxOverlap);
+          player.y -= ny * (overlap - maxOverlap);
+        }
+      }
+      if (!lite && overlap > -player.r * 0.3) clampToArena(player);
+    }
+
+    function clampToArena(dot) {
+      const { count, h, hv } = dot;
+      const { cos, sin } = getDirections(count);
+      const distance2 = dot.x * dot.x + dot.y * dot.y;
+      for (let i = 0; i < count; i++) {
+        const along = dot.x * cos[i] + dot.y * sin[i];
+        const limit = (Math.sqrt(Math.max(0, along * along + R * R - distance2)) - along) / dot.r - 1;
+        if (h[i] > limit) {
+          h[i] = limit;
+          if (hv[i] > 0) hv[i] *= 0.3;
+        }
+      }
+    }
+
+    function stepDots(dt) {
+      const { dots, player } = game;
+      for (const dot of dots) {
+        if (dot.merging) continue;
+        // Recupera poco a poco su deriva después de un choque.
+        const heavy = dot.kind !== 'food';
+        const speed = Math.hypot(dot.vx, dot.vy) || 1e-6;
+        if (heavy) {
+          const rate = 1 - Math.exp(-dt * 0.8);
+          dot.vx += (dot.dirX * dot.drift - dot.vx) * rate;
+          dot.vy += (dot.dirY * dot.drift - dot.vy) * rate;
+        } else {
+          const rate = 1 - Math.exp(-dt * 0.7);
+          const wanted = speed + (dot.drift - speed) * rate;
+          dot.vx *= wanted / speed;
+          dot.vy *= wanted / speed;
+        }
+        // En el tramo final los grandes que queden se desinflan.
+        if (game.frenzy && dot.r > player.r * 0.7) {
+          dot.area *= Math.exp(-dt * 0.5);
+        }
+        dot.x += dot.vx * dt;
+        dot.y += dot.vy * dt;
+      }
+    }
+
+    function relaxRadius(dot, dt) {
+      const target = Math.sqrt(dot.area);
+      if (Math.abs(target - dot.r) > 1e-4) {
+        dot.r += (target - dot.r) * (1 - Math.exp(-dt * 1.5));
+        dot.mass = dot.r * dot.r * (dot.kind === 'peek' ? 40 : dot.kind === 'threat' ? 8 : 1);
+      }
+    }
+
+    function stepShapes(dt) {
+      const view = game.camera.viewRadius;
+      const update = dot => {
+        relaxRadius(dot, dt);
+        if (lite) return;
+        stepRing(dot, dt, view);
+        dot.shine = Math.max(0, dot.shine - dt * 1.4);
+        if (dot.inks.length) {
+          for (const ink of dot.inks) {
+            ink.age += dt;
+            ink.x *= 1 - dt * 1.4;
+            ink.y *= 1 - dt * 1.4;
+          }
+          if (dot.inks[0].age > 1.6) dot.inks.shift();
+        }
+      };
+      game.dots.forEach(update);
+      if (!game.player.removed) update(game.player);
+    }
+
+    // Ajusta el detalle del contorno al tamaño en pantalla (con histéresis).
+    function updateDetail(dot) {
+      const count = getNodeCount(dot.r / game.camera.viewRadius);
+      const low = getNodeCount((dot.r / game.camera.viewRadius) * 1.15);
+      if (count > dot.count || low < dot.count) setNodes(dot, Math.max(count, Math.min(low, dot.count)));
+    }
+
+    let detailTimer = 0;
+
+    function step(dt, input) {
+      const playing = game.state === 'playing';
+      if (playing) {
+        game.time += dt;
+        if (game.combo) {
+          game.comboTime -= dt;
+          if (game.comboTime <= 0) {
+            game.combo = 0;
+            game.comboTime = 0;
+          }
+        }
+      }
+
+      if (playing || game.state === 'losing') {
+        const control = playing ? input : { x: 0, y: 0 };
+        stepPlayer(dt, control);
+      } else if (game.state === 'won') {
+        // El jugador termina de llenar la arena, centrado.
+        const { player } = game;
+        player.x *= Math.exp(-dt * 3);
+        player.y *= Math.exp(-dt * 3);
+        player.vx = 0;
+        player.vy = 0;
+        player.area += (R * R - player.area) * (1 - Math.exp(-dt * 2));
+        if (!lite) clampToArena(player);
+      }
+
+      stepDots(dt);
+      stepCollisions(dt);
+      stepMerges(dt);
+      stepShapes(dt);
+      if (!lite && !game.player.removed && Math.hypot(game.player.x, game.player.y) + game.player.r * 1.3 > R) {
+        clampToArena(game.player);
+      }
+      if (!game.player.removed) updateCamera(dt);
+
+      detailTimer -= dt;
+      if (detailTimer <= 0) {
+        detailTimer = 0.1;
+        if (game.state === 'playing' || game.state === 'demo') direct(0.1);
+        if (!lite) {
+          game.dots.forEach(updateDetail);
+          updateDetail(game.player);
+        }
+      }
+
+      if (game.state === 'playing' && Math.sqrt(game.player.area) >= R * CONFIG.winAt) {
+        game.state = 'won';
+        game.endTime = game.time;
+        game.events.push({ type: 'won' });
+      }
+    }
+
+    function reset() {
+      game.player = createDot(0, 0, CONFIG.startRadius, -1);
+      game.player.kind = 'player';
+      game.camera.viewRadius = CONFIG.startRadius / getScreenFraction(0);
+      updateCameraShape();
+      setNodes(game.player, getNodeCount(0.1));
+      const domainArea = (Math.PI * game.domain * game.domain) / (game.camera.viewRadius * game.camera.viewRadius);
+      for (let i = 0; i < domainArea * 3; i++) spawnFood(0, true);
+    }
+
+    reset();
+
+    // Escena de fondo para el menú: puntos flotando, sin jugador.
+    if (options.demo) {
+      game.state = 'demo';
+      game.player.removed = true;
+    }
+
+    return Object.assign(game, {
+      step,
+      getProgress,
+      getScreenFraction,
+      isThreat,
+      isEdible,
+      setAspect(aspect) {
+        game.aspect = clamp(aspect, 0.4, 3);
+        updateCameraShape();
+      },
+      // Porcentaje del ancho de la arena que ocupa el jugador.
+      getFilled() {
+        return clamp(getPlayerSize() / R, 0, 1);
+      }
+    });
+  }
+
+  return { CONFIG, PALETTE, STEP, TAU, clamp, lerp, smoothstep, createGame, createRandom, getDirections };
+});
+
+/**
+ * Dots: dibujo del juego en un canvas 2D.
+ *
+ * Recibe una partida de dots-core.js y pinta la arena, los globos de agua, las
+ * membranas de las pompas al unirse y las gotas que saltan.
+ */
+(function (root) {
+  'use strict';
+
+  const { CONFIG, PALETTE, TAU, clamp, getDirections } = root.DotsCore;
+
+  const COLORS = {
+    arena: '#f4e9d3',
+    arenaEdge: '#eddfc3',
+    outside: '#e3d3b4',
+    outsideVeil: 'rgba(227, 211, 180, 0.66)',
+    grid: '150, 122, 78',
+    rim: 'rgba(160, 130, 85, 0.55)',
+    shadow: 'rgba(120, 90, 45, 0.16)'
+  };
+  // El jugador: [base, claro, oscuro].
+  const PLAYER_COLORS = ['#ffffff', '#ffffff', '#d9c9ae'];
+  // Tonos irisados de la película de jabón.
+  const SOAP = ['#ffb7d5', '#ffe6a8', '#b8f0d0', '#a9d8ff', '#d9b8ff', '#ffb7d5'];
+  const INK_LIFE = 1.6;
+
+  const getColors = index => (index < 0 ? PLAYER_COLORS : PALETTE[index]);
+
+  function withAlpha(hex, alpha) {
+    const value = parseInt(hex.slice(1), 16);
+    return `rgba(${value >> 16}, ${(value >> 8) & 255}, ${value & 255}, ${alpha})`;
+  }
+
+  function createRenderer(canvas, options = {}) {
+    const context = canvas.getContext('2d', { alpha: false });
+    const reducedMotion = options.reducedMotion || (() => false);
+    const view = { width: 1, height: 1, ratio: 1, scale: 1, x: 0, y: 0 };
+    let drops = [];
+    let rings = [];
+
+    function resize(width, height, ratio) {
+      view.width = Math.max(1, width);
+      view.height = Math.max(1, height);
+      view.ratio = ratio;
+      canvas.width = Math.round(view.width * ratio);
+      canvas.height = Math.round(view.height * ratio);
+    }
+
+    const toScreenX = x => view.width / 2 + (x - view.x) * view.scale;
+    const toScreenY = y => view.height / 2 + (y - view.y) * view.scale;
+
+    /* --- Arena --- */
+
+    function drawArena(game) {
+      const cx = toScreenX(0);
+      const cy = toScreenY(0);
+      const radius = CONFIG.arenaRadius * view.scale;
+      context.fillStyle = COLORS.outside;
+      context.fillRect(0, 0, view.width, view.height);
+      context.fillStyle = COLORS.arena;
+      context.beginPath();
+      context.arc(cx, cy, radius, 0, TAU);
+      context.fill();
+      drawGrid(game);
+    }
+
+    // Punteado que da sensación de movimiento; su separación se adapta al zoom.
+    function drawGrid() {
+      const R = CONFIG.arenaRadius;
+      let spacing = 20;
+      while (spacing * view.scale < 38) spacing *= 2;
+      const fade = clamp((spacing * view.scale - 38) / 38, 0, 1);
+      const left = Math.max(-R, view.x - view.width / 2 / view.scale);
+      const right = Math.min(R, view.x + view.width / 2 / view.scale);
+      const top = Math.max(-R, view.y - view.height / 2 / view.scale);
+      const bottom = Math.min(R, view.y + view.height / 2 / view.scale);
+      const draw = (alpha, coarse) => {
+        context.fillStyle = `rgba(${COLORS.grid}, ${alpha})`;
+        context.beginPath();
+        for (let row = Math.ceil(top / spacing); row * spacing <= bottom; row++) {
+          for (let column = Math.ceil(left / spacing); column * spacing <= right; column++) {
+            const isCoarse = row % 2 === 0 && column % 2 === 0;
+            if (isCoarse !== coarse) continue;
+            const x = column * spacing;
+            const y = row * spacing;
+            if (x * x + y * y > R * R) continue;
+            context.rect(toScreenX(x) - 1, toScreenY(y) - 1, 2, 2);
+          }
+        }
+        context.fill();
+      };
+      draw(0.2, true);
+      draw(0.2 * fade, false);
+    }
+
+    // Velo sobre lo que queda fuera de la arena y borde de esta.
+    function drawArenaEdge() {
+      const cx = toScreenX(0);
+      const cy = toScreenY(0);
+      const radius = CONFIG.arenaRadius * view.scale;
+      const corner = Math.hypot(
+        Math.abs(cx - view.width / 2) + view.width / 2,
+        Math.abs(cy - view.height / 2) + view.height / 2
+      );
+      if (corner < radius - 8) return;
+      context.fillStyle = COLORS.outsideVeil;
+      context.beginPath();
+      context.rect(0, 0, view.width, view.height);
+      context.arc(cx, cy, radius, 0, TAU, true);
+      context.fill('evenodd');
+      context.lineWidth = 3;
+      context.strokeStyle = COLORS.rim;
+      context.beginPath();
+      context.arc(cx, cy, radius, 0, TAU);
+      context.stroke();
+    }
+
+    /* --- Globos --- */
+
+    function buildPath(dot, x, y, r) {
+      const path = new Path2D();
+      const { count, h } = dot;
+      const { cos, sin } = getDirections(count);
+      const px = i => x + cos[i] * r * (1 + h[i]);
+      const py = i => y + sin[i] * r * (1 + h[i]);
+      let previousX = px(count - 1);
+      let previousY = py(count - 1);
+      let currentX = px(0);
+      let currentY = py(0);
+      path.moveTo((previousX + currentX) / 2, (previousY + currentY) / 2);
+      for (let i = 0; i < count; i++) {
+        const next = (i + 1) % count;
+        const nextX = px(next);
+        const nextY = py(next);
+        path.quadraticCurveTo(currentX, currentY, (currentX + nextX) / 2, (currentY + nextY) / 2);
+        currentX = nextX;
+        currentY = nextY;
+      }
+      path.closePath();
+      return path;
+    }
+
+    function isVisible(x, y, r) {
+      const reach = r * 1.5 + 4;
+      return x + reach > 0 && x - reach < view.width && y + reach > 0 && y - reach < view.height;
+    }
+
+    function drawDot(dot) {
+      const x = toScreenX(dot.x);
+      const y = toScreenY(dot.y);
+      const r = dot.r * view.scale;
+      if (!isVisible(x, y, r)) return;
+      const [base, light, dark] = getColors(dot.color);
+      const isPlayer = dot.color < 0;
+      const path = buildPath(dot, x, y, r);
+
+      // Sombra suave sobre la arena.
+      const offset = Math.min(r * 0.1, 9);
+      context.save();
+      context.translate(offset * 0.6, offset);
+      context.fillStyle = COLORS.shadow;
+      context.fill(path);
+      context.restore();
+
+      if (r < 5) {
+        context.fillStyle = base;
+        context.fill(path);
+        return;
+      }
+
+      // Agua: más clara donde entra la luz y más densa hacia el borde opuesto.
+      const body = context.createRadialGradient(x - r * 0.28, y - r * 0.34, r * 0.08, x, y, r * 1.22);
+      body.addColorStop(0, light);
+      body.addColorStop(isPlayer ? 0.72 : 0.5, base);
+      body.addColorStop(1, dark);
+      context.fillStyle = body;
+      context.fill(path);
+
+      if (dot.inks.length || r > 10) {
+        context.save();
+        context.clip(path);
+        drawInks(dot, x, y, r);
+        if (r > 10) drawLights(dot, x, y, r, isPlayer);
+        context.restore();
+      }
+
+      context.lineWidth = clamp(r * 0.035, 1, 3.2);
+      context.strokeStyle = withAlpha(dark, isPlayer ? 0.95 : 0.7);
+      context.stroke(path);
+
+      if (dot.shine > 0.02 && !reducedMotion()) {
+        context.save();
+        context.globalAlpha = Math.min(0.85, dot.shine);
+        context.lineWidth = clamp(r * 0.05, 1.5, 5);
+        context.strokeStyle = getSoapStroke(x, y, r, dot.id);
+        context.stroke(path);
+        context.restore();
+      }
+    }
+
+    // Color de la presa diluyéndose dentro del globo.
+    function drawInks(dot, x, y, r) {
+      for (const ink of dot.inks) {
+        const age = ink.age / INK_LIFE;
+        if (age >= 1) continue;
+        const size = r * (ink.size * (1 + age * 1.2) + age * 0.35);
+        const ix = x + ink.x * r;
+        const iy = y + ink.y * r;
+        const [base] = getColors(ink.color);
+        const gradient = context.createRadialGradient(ix, iy, 0, ix, iy, size);
+        const alpha = Math.pow(1 - age, 1.4) * 0.9;
+        gradient.addColorStop(0, withAlpha(base, alpha));
+        gradient.addColorStop(0.55, withAlpha(base, alpha * 0.6));
+        gradient.addColorStop(1, withAlpha(base, 0));
+        context.fillStyle = gradient;
+        context.beginPath();
+        context.arc(ix, iy, size, 0, TAU);
+        context.fill();
+      }
+    }
+
+    // Reflejo superior y luz de rebote inferior; acompañan a la deformación.
+    function drawLights(dot, x, y, r, isPlayer) {
+      const { count, h } = dot;
+      const stretch = angle => 1 + h[Math.round((angle / TAU) * count) % count];
+      const top = stretch(TAU * 0.64);
+      const bottom = stretch(TAU * 0.14);
+      context.fillStyle = isPlayer ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.62)';
+      context.beginPath();
+      context.ellipse(x - r * 0.42 * top, y - r * 0.5 * top, r * 0.24, r * 0.12, -0.7, 0, TAU);
+      context.fill();
+      context.beginPath();
+      context.arc(x - r * 0.66 * top, y - r * 0.2 * top, r * 0.05, 0, TAU);
+      context.fill();
+      context.lineCap = 'round';
+      context.lineWidth = r * 0.07;
+      context.strokeStyle = isPlayer ? 'rgba(255, 250, 240, 0.75)' : 'rgba(255, 255, 255, 0.3)';
+      context.beginPath();
+      context.arc(x, y, r * 0.8 * bottom, TAU * 0.06, TAU * 0.2);
+      context.stroke();
+    }
+
+    function getSoapStroke(x, y, r, seed) {
+      if (typeof context.createConicGradient === 'function') {
+        const gradient = context.createConicGradient(seed % TAU, x, y);
+        SOAP.forEach((color, index) => gradient.addColorStop(index / (SOAP.length - 1), color));
+        return gradient;
+      }
+      const gradient = context.createLinearGradient(x - r, y - r, x + r, y + r);
+      SOAP.forEach((color, index) => gradient.addColorStop(index / (SOAP.length - 1), color));
+      return gradient;
+    }
+
+    /* --- Pompas de jabón --- */
+
+    // Membrana compartida por dos pompas en contacto.
+    function drawFilm(merge) {
+      const { eater, prey, nx, ny, distance } = merge;
+      const r = prey.r * view.scale;
+      if (r < 4) return;
+      const plane = (distance * distance + eater.r * eater.r - prey.r * prey.r) / (2 * distance);
+      const half = Math.sqrt(Math.max(0, eater.r * eater.r - plane * plane));
+      if (half <= 0) return;
+      const cx = toScreenX(eater.x + nx * plane);
+      const cy = toScreenY(eater.y + ny * plane);
+      const length = half * view.scale;
+      const bulge = -length * 0.3 * (1 - prey.r / eater.r);
+      const x1 = cx - ny * length;
+      const y1 = cy + nx * length;
+      const x2 = cx + ny * length;
+      const y2 = cy - nx * length;
+      const gradient = context.createLinearGradient(x1, y1, x2, y2);
+      SOAP.forEach((color, index) => gradient.addColorStop(index / (SOAP.length - 1), color));
+      context.lineCap = 'round';
+      context.lineWidth = clamp(r * 0.14 * (1 - merge.time / merge.duration * 0.6), 1.5, 9);
+      context.strokeStyle = gradient;
+      context.beginPath();
+      context.moveTo(x1, y1);
+      context.quadraticCurveTo(cx + nx * bulge, cy + ny * bulge, x2, y2);
+      context.stroke();
+    }
+
+    // Al reventar la membrana saltan gotitas y una onda fina.
+    function addRupture(event) {
+      if (reducedMotion() || event.r * view.scale < 3) return;
+      const [base, light] = getColors(event.color);
+      const amount = Math.round(clamp(4 + event.r * view.scale * 0.14, 5, 16));
+      for (let i = 0; i < amount; i++) {
+        const side = i % 2 ? 1 : -1;
+        const spread = (Math.random() - 0.5) * 1.1;
+        const angle = Math.atan2(event.nx * side, -event.ny * side) + spread;
+        const speed = event.r * (1.4 + Math.random() * 2.8);
+        drops.push({
+          x: event.x - event.ny * event.r * 0.5 * side,
+          y: event.y + event.nx * event.r * 0.5 * side,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          r: event.r * (0.05 + Math.random() * 0.08),
+          color: Math.random() < 0.5 ? base : light,
+          age: 0,
+          life: 0.35 + Math.random() * 0.3
+        });
+      }
+      rings.push({ x: event.x, y: event.y, r: event.r, age: 0, life: 0.32 });
+      if (drops.length > 160) drops = drops.slice(-160);
+      if (rings.length > 16) rings = rings.slice(-16);
+    }
+
+    function drawEffects(dt) {
+      for (const drop of drops) {
+        drop.age += dt;
+        drop.x += drop.vx * dt;
+        drop.y += drop.vy * dt;
+        drop.vx *= Math.exp(-dt * 4);
+        drop.vy *= Math.exp(-dt * 4);
+        const left = 1 - drop.age / drop.life;
+        if (left <= 0) continue;
+        context.fillStyle = withAlpha(drop.color, 0.9);
+        context.beginPath();
+        context.arc(toScreenX(drop.x), toScreenY(drop.y), Math.max(0.6, drop.r * view.scale * left), 0, TAU);
+        context.fill();
+      }
+      for (const ring of rings) {
+        ring.age += dt;
+        const progress = ring.age / ring.life;
+        if (progress >= 1) continue;
+        context.lineWidth = Math.max(0.8, 2.4 * (1 - progress));
+        context.strokeStyle = `rgba(255, 255, 255, ${0.75 * (1 - progress)})`;
+        context.beginPath();
+        context.arc(toScreenX(ring.x), toScreenY(ring.y), ring.r * view.scale * (0.4 + progress * 0.9), 0, TAU);
+        context.stroke();
+      }
+      drops = drops.filter(drop => drop.age < drop.life);
+      rings = rings.filter(ring => ring.age < ring.life);
+    }
+
+    function draw(game, dt) {
+      const { camera } = game;
+      view.x = camera.x;
+      view.y = camera.y;
+      view.scale = view.height / (2 * camera.halfHeight);
+      context.setTransform(view.ratio, 0, 0, view.ratio, 0, 0);
+      drawArena(game);
+      for (const dot of game.dots) drawDot(dot);
+      if (!game.player.removed) {
+        // El borde de la arena queda por debajo del jugador, que nunca sale de ella.
+        drawArenaEdge();
+        drawDot(game.player);
+      } else {
+        drawArenaEdge();
+      }
+      for (const merge of game.merges) drawFilm(merge);
+      drawEffects(dt);
+    }
+
+    function clearEffects() {
+      drops = [];
+      rings = [];
+    }
+
+    return { resize, draw, addRupture, clearEffects };
+  }
+
+  root.DotsRender = { createRenderer };
+})(typeof self !== 'undefined' ? self : this);
+
+/**
+ * Dots: sonido de pompa al comer, generado con Web Audio (sin archivos).
+ *
+ * Cada pompa es un tono corto que sube de golpe, como una burbuja, con un leve
+ * chasquido y un eco suave. Las grandes suenan más graves y el combo hace subir
+ * la melodía por una escala pentatónica, que siempre suena afinada.
+ */
+(function (root) {
+  'use strict';
+
+  // Semitonos de la escala pentatónica mayor, dos octavas.
+  const SCALE = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21];
+  // En combos largos la melodía sube y baja por la octava alta en vez de seguir subiendo.
+  const LOOP_START = 4;
+  const BASE_FREQUENCY = 277;
+  const MIN_GAP = 0.04;
+  const MAX_VOICES = 10;
+
+  function getScaleStep(combo) {
+    const index = Math.max(combo - 1, 0);
+    const top = SCALE.length - 1;
+    if (index <= top) return index;
+    const span = top - LOOP_START;
+    const position = (index - top) % (span * 2);
+    return position <= span ? top - position : LOOP_START + position - span;
+  }
+
+  function getPopNote({ size, combo }) {
+    const step = getScaleStep(combo);
+    // size: tamaño de la presa respecto al jugador (0 a 1).
+    const depth = Math.min(1, Math.max(0, size));
+    return {
+      frequency: BASE_FREQUENCY * Math.pow(2, (SCALE[step] - depth * 7) / 12),
+      duration: 0.13 + depth * 0.14,
+      volume: 0.2 + depth * 0.16
+    };
+  }
+
+  // Programa una pompa en cualquier contexto de audio (también sin conexión, para pruebas).
+  function schedulePop(context, output, start, options) {
+    const { frequency, duration, volume } = getPopNote(options);
+
+    const envelope = context.createGain();
+    envelope.gain.setValueAtTime(0.0001, start);
+    envelope.gain.exponentialRampToValueAtTime(volume, start + 0.008);
+    envelope.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+    envelope.connect(output);
+
+    // Cuerpo: el tono sube con rapidez, como el aire que escapa de una burbuja.
+    const body = context.createOscillator();
+    body.type = 'sine';
+    body.frequency.setValueAtTime(frequency * 0.62, start);
+    body.frequency.exponentialRampToValueAtTime(frequency * 1.35, start + duration * 0.55);
+    body.connect(envelope);
+    body.start(start);
+    body.stop(start + duration + 0.02);
+
+    // Brillo: un armónico muy breve que da el «plop».
+    const sparkle = context.createOscillator();
+    const sparkleGain = context.createGain();
+    sparkle.type = 'triangle';
+    sparkle.frequency.setValueAtTime(frequency * 2.4, start);
+    sparkle.frequency.exponentialRampToValueAtTime(frequency * 1.6, start + 0.05);
+    sparkleGain.gain.setValueAtTime(volume * 0.22, start);
+    sparkleGain.gain.exponentialRampToValueAtTime(0.0001, start + 0.055);
+    sparkle.connect(sparkleGain).connect(output);
+    sparkle.start(start);
+    sparkle.stop(start + 0.07);
+
+    return body;
+  }
+
+  function createAudio() {
+    const AudioContextClass = root.AudioContext || root.webkitAudioContext;
+    let context = null;
+    let output = null;
+    let muted = false;
+    let lastPop = -1;
+    let voices = 0;
+
+    function buildOutput() {
+      output = context.createGain();
+      output.gain.value = muted ? 0 : 0.8;
+
+      const compressor = context.createDynamicsCompressor();
+      compressor.threshold.value = -16;
+      compressor.ratio.value = 6;
+
+      // Eco corto y apagado: da sensación de agua sin ensuciar.
+      const delay = context.createDelay(0.5);
+      const feedback = context.createGain();
+      const filter = context.createBiquadFilter();
+      const wet = context.createGain();
+      delay.delayTime.value = 0.11;
+      feedback.gain.value = 0.22;
+      filter.type = 'lowpass';
+      filter.frequency.value = 1600;
+      wet.gain.value = 0.2;
+
+      output.connect(compressor);
+      output.connect(delay);
+      delay.connect(filter);
+      filter.connect(feedback).connect(delay);
+      filter.connect(wet).connect(compressor);
+      compressor.connect(context.destination);
+    }
+
+    return {
+      available: Boolean(AudioContextClass),
+
+      // Los navegadores solo permiten sonido tras un gesto: se llama al pulsar «Jugar».
+      unlock() {
+        if (!AudioContextClass) return;
+        try {
+          if (!context) {
+            context = new AudioContextClass();
+            buildOutput();
+          }
+          if (context.state === 'suspended') context.resume().catch(() => {});
+        } catch (error) {
+          // Sin salida de audio: el juego sigue en silencio.
+          context = null;
+        }
+      },
+
+      setMuted(value) {
+        muted = value;
+        if (output) output.gain.setTargetAtTime(muted ? 0 : 0.8, context.currentTime, 0.015);
+      },
+
+      pop(options) {
+        if (muted || !context || context.state !== 'running') return;
+        // Si se comen varias a la vez, se escalonan un poco en lugar de sumarse.
+        const start = Math.max(context.currentTime, lastPop + MIN_GAP);
+        if (voices >= MAX_VOICES || start - context.currentTime > 0.2) return;
+        lastPop = start;
+        voices++;
+        schedulePop(context, output, start, options).addEventListener('ended', () => {
+          voices--;
+        });
+      }
+    };
+  }
+
+  root.DotsAudio = { createAudio, schedulePop, getPopNote };
+})(typeof self !== 'undefined' ? self : this);
+
+/**
+ * Dots: bucle de juego, controles, paneles y pantalla completa.
+ * Lo usan la página del proyecto y la versión descargable.
+ */
+(function () {
+  'use strict';
+
+  const RECORD_KEY = 'dots-record';
+  const MUTED_KEY = 'dots-silencio';
+  const DIRECTION_KEYS = {
+    ArrowUp: [0, -1], KeyW: [0, -1],
+    ArrowDown: [0, 1], KeyS: [0, 1],
+    ArrowLeft: [-1, 0], KeyA: [-1, 0],
+    ArrowRight: [1, 0], KeyD: [1, 0]
+  };
+
+  function initDots() {
+    const stage = document.getElementById('dots-game');
+    if (!stage || !window.DotsCore || !window.DotsRender || !window.DotsAudio) return;
+
+    const { CONFIG, STEP, clamp, createGame } = window.DotsCore;
+    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const coarsePointerQuery = window.matchMedia('(pointer: coarse)');
+    const find = id => document.getElementById(id);
+
+    const canvas = find('dots-canvas');
+    const panel = find('dots-panel');
+    const panelTitle = find('dots-panel-title');
+    const panelText = find('dots-panel-text');
+    const panelStats = find('dots-panel-stats');
+    const primaryButton = find('dots-primary');
+    const restartButton = find('dots-restart');
+    const pauseButton = find('dots-pause');
+    const soundButton = find('dots-sound');
+    const fullscreenButton = find('dots-fullscreen');
+    const toast = find('dots-toast');
+    const hudTime = find('dots-time');
+    const hudEaten = find('dots-eaten');
+    const hudFilled = find('dots-filled');
+    const hudBar = find('dots-bar');
+    const combo = find('dots-combo');
+    const comboCount = find('dots-combo-count');
+    const comboBar = find('dots-combo-bar');
+
+    const renderer = window.DotsRender.createRenderer(canvas, {
+      reducedMotion: () => reducedMotionQuery.matches
+    });
+
+    const audio = window.DotsAudio.createAudio();
+
+    // Estados: menu, playing, paused, ended.
+    let state = 'menu';
+    let game = createGame({ demo: true });
+    let endTimer = 0;
+    let accumulator = 0;
+    let lastFrame = 0;
+    let frameRequest = 0;
+    let maxRatio = 2;
+    let slowFrames = 0;
+    let stageVisible = true;
+    let lastFullscreenChange = -1000;
+    let toastTimer = 0;
+    let shownCombo = 0;
+    let muted = readMuted();
+
+    const pointer = { active: false, x: 0, y: 0 };
+    const touch = { id: null, anchorX: 0, anchorY: 0, x: 0, y: 0 };
+    const keys = new Set();
+
+    /* --- Textos --- */
+
+    function formatTime(seconds) {
+      const total = Math.floor(seconds);
+      return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
+    }
+
+    function formatFilled(value) {
+      const percent = value * 100;
+      return `${percent.toLocaleString('es-ES', { maximumFractionDigits: percent < 10 ? 1 : 0 })} %`;
+    }
+
+    function showToast(message, seconds) {
+      toast.textContent = message;
+      toast.classList.add('is-visible');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('is-visible'), seconds * 1000);
+    }
+
+    /* --- Sonido --- */
+
+    function readMuted() {
+      try {
+        return localStorage.getItem(MUTED_KEY) === '1';
+      } catch (error) {
+        return false;
+      }
+    }
+
+    function applyMuted() {
+      const label = muted ? 'Activar sonido' : 'Silenciar';
+      stage.classList.toggle('is-muted', muted);
+      soundButton.setAttribute('aria-label', label);
+      soundButton.title = `${label} (M)`;
+      audio.setMuted(muted);
+    }
+
+    function toggleMuted() {
+      muted = !muted;
+      try {
+        localStorage.setItem(MUTED_KEY, muted ? '1' : '0');
+      } catch (error) {
+        // Sin almacenamiento disponible: la preferencia solo dura esta visita.
+      }
+      applyMuted();
+    }
+
+    /* --- Récord --- */
+
+    function readRecord() {
+      try {
+        return JSON.parse(localStorage.getItem(RECORD_KEY));
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function isBetter(result, record) {
+      if (!record) return true;
+      if (result.won !== record.won) return result.won;
+      return result.won ? result.time < record.time : result.filled > record.filled;
+    }
+
+    function saveRecord(result) {
+      const record = readRecord();
+      if (!isBetter(result, record)) return false;
+      try {
+        localStorage.setItem(RECORD_KEY, JSON.stringify(result));
+      } catch (error) {
+        // Sin almacenamiento disponible: el récord no se guarda.
+      }
+      return true;
+    }
+
+    function describeRecord(record) {
+      return record.won
+        ? `arena completa en ${formatTime(record.time)}`
+        : `${formatFilled(record.filled)} de la arena`;
+    }
+
+    /* --- Paneles --- */
+
+    function setState(next) {
+      state = next;
+      stage.dataset.state = next;
+      pauseButton.hidden = next !== 'playing';
+    }
+
+    function showPanel({ title, text, primary, restart, stats }) {
+      panelTitle.textContent = title;
+      panelText.textContent = text;
+      primaryButton.textContent = primary;
+      restartButton.hidden = !restart;
+      panelStats.replaceChildren();
+      (stats || []).forEach(([label, value]) => {
+        const item = document.createElement('div');
+        const term = document.createElement('dt');
+        const detail = document.createElement('dd');
+        term.textContent = label;
+        detail.textContent = value;
+        item.append(term, detail);
+        panelStats.append(item);
+      });
+      panelStats.hidden = !stats;
+      panel.hidden = false;
+      primaryButton.focus({ preventScroll: true });
+    }
+
+    function hidePanel() {
+      panel.hidden = true;
+      canvas.focus({ preventScroll: true });
+    }
+
+    function startGame() {
+      audio.unlock();
+      game = createGame({ aspect: stage.clientWidth / Math.max(1, stage.clientHeight) });
+      game.setAspect(stage.clientWidth / Math.max(1, stage.clientHeight));
+      renderer.clearEffects();
+      clearTimeout(endTimer);
+      endTimer = 0;
+      accumulator = 0;
+      keys.clear();
+      touch.id = null;
+      pointer.active = false;
+      setState('playing');
+      hidePanel();
+      updateHud();
+      requestFrame();
+    }
+
+    function pauseGame() {
+      if (state !== 'playing' || game.state !== 'playing') return;
+      setState('paused');
+      keys.clear();
+      touch.id = null;
+      showPanel({
+        title: 'Pausa',
+        text: 'Pulsa Esc para seguir jugando.',
+        primary: 'Continuar',
+        restart: true
+      });
+    }
+
+    function resumeGame() {
+      audio.unlock();
+      setState('playing');
+      hidePanel();
+      requestFrame();
+    }
+
+    function finishGame() {
+      const won = game.state === 'won';
+      const result = { won, time: game.endTime, filled: won ? 1 : game.lastFilled, eaten: game.eaten };
+      const isRecord = saveRecord(result);
+      const record = readRecord();
+      setState('ended');
+      showPanel({
+        title: won ? '¡Has llenado la arena!' : 'Te han comido',
+        text: isRecord
+          ? '¡Nuevo récord!'
+          : (record ? `Tu récord: ${describeRecord(record)}.` : 'Inténtalo otra vez.'),
+        primary: 'Jugar otra vez',
+        restart: false,
+        stats: [
+          ['Tiempo', formatTime(result.time)],
+          ['Comidos', String(result.eaten)],
+          ['Mejor combo', `×${game.bestCombo}`],
+          ['Arena', formatFilled(result.filled)]
+        ]
+      });
+    }
+
+    function handlePrimary() {
+      if (state === 'paused') resumeGame();
+      else if (state !== 'playing') startGame();
+    }
+
+    /* --- Controles --- */
+
+    function getInput() {
+      let x = 0;
+      let y = 0;
+      keys.forEach(code => {
+        x += DIRECTION_KEYS[code][0];
+        y += DIRECTION_KEYS[code][1];
+      });
+      if (x || y) {
+        const length = Math.hypot(x, y);
+        return { x: x / length, y: y / length };
+      }
+      if (touch.id !== null) {
+        const dx = touch.x - touch.anchorX;
+        const dy = touch.y - touch.anchorY;
+        const length = Math.hypot(dx, dy);
+        if (length < 6) return { x: 0, y: 0 };
+        const strength = Math.min(1, length / 55) / length;
+        return { x: dx * strength, y: dy * strength };
+      }
+      if (!pointer.active) return { x: 0, y: 0 };
+      // El punto va hacia el cursor y frena al llegar.
+      const { camera, player } = game;
+      const scale = stage.clientHeight / (2 * camera.halfHeight);
+      const dx = pointer.x - (stage.clientWidth / 2 + (player.x - camera.x) * scale);
+      const dy = pointer.y - (stage.clientHeight / 2 + (player.y - camera.y) * scale);
+      const length = Math.hypot(dx, dy);
+      if (length < 3) return { x: 0, y: 0 };
+      const reach = Math.min(stage.clientWidth, stage.clientHeight) * 0.16;
+      const strength = Math.min(1, length / reach) / length;
+      return { x: dx * strength, y: dy * strength };
+    }
+
+    function updatePointer(event) {
+      const bounds = stage.getBoundingClientRect();
+      pointer.x = event.clientX - bounds.left;
+      pointer.y = event.clientY - bounds.top;
+    }
+
+    function initControls() {
+      window.addEventListener('pointermove', event => {
+        if (event.pointerType === 'touch') {
+          if (event.pointerId !== touch.id) return;
+          touch.x = event.clientX;
+          touch.y = event.clientY;
+          // El ancla sigue al dedo para poder cambiar de sentido al momento.
+          const dx = touch.x - touch.anchorX;
+          const dy = touch.y - touch.anchorY;
+          const length = Math.hypot(dx, dy);
+          if (length > 70) {
+            touch.anchorX += dx * (1 - 70 / length);
+            touch.anchorY += dy * (1 - 70 / length);
+          }
+          return;
+        }
+        if (state !== 'playing') return;
+        keys.clear();
+        pointer.active = true;
+        updatePointer(event);
+      }, { passive: true });
+
+      canvas.addEventListener('pointerdown', event => {
+        if (state !== 'playing' || event.pointerType !== 'touch' || touch.id !== null) return;
+        event.preventDefault();
+        touch.id = event.pointerId;
+        touch.anchorX = touch.x = event.clientX;
+        touch.anchorY = touch.y = event.clientY;
+      });
+      ['pointerup', 'pointercancel'].forEach(type => {
+        window.addEventListener(type, event => {
+          if (event.pointerId === touch.id) touch.id = null;
+        });
+      });
+      canvas.addEventListener('contextmenu', event => {
+        if (state === 'playing') event.preventDefault();
+      });
+
+      document.addEventListener('keydown', event => {
+        if (event.ctrlKey || event.altKey || event.metaKey) return;
+        if (event.key === 'F11' && document.fullscreenElement === stage) {
+          event.preventDefault();
+          document.exitFullscreen();
+          return;
+        }
+        if (event.key === 'Escape' && !event.repeat) {
+          // Si el navegador usa Esc para salir de pantalla completa, ya ha pausado.
+          if (performance.now() - lastFullscreenChange < 400) return;
+          if (state === 'playing') {
+            event.preventDefault();
+            pauseGame();
+          } else if (state === 'paused') {
+            event.preventDefault();
+            resumeGame();
+          }
+          return;
+        }
+        if (event.code === 'KeyM' && !event.repeat && (state === 'playing' || state === 'paused')) {
+          toggleMuted();
+          return;
+        }
+        if (state !== 'playing') return;
+        if (DIRECTION_KEYS[event.code]) {
+          event.preventDefault();
+          pointer.active = false;
+          keys.add(event.code);
+        } else if (event.code === 'Space' && event.target === canvas) {
+          event.preventDefault();
+        }
+      });
+      document.addEventListener('keyup', event => keys.delete(event.code));
+
+      primaryButton.addEventListener('click', handlePrimary);
+      restartButton.addEventListener('click', startGame);
+      pauseButton.addEventListener('click', pauseGame);
+      soundButton.addEventListener('click', () => {
+        toggleMuted();
+        if (state === 'playing') canvas.focus({ preventScroll: true });
+      });
+    }
+
+    /* --- Pantalla completa --- */
+
+    function initFullscreen() {
+      if (!document.fullscreenEnabled || !stage.requestFullscreen) {
+        fullscreenButton.hidden = true;
+        return;
+      }
+
+      fullscreenButton.addEventListener('click', () => {
+        if (document.fullscreenElement === stage) {
+          document.exitFullscreen();
+          return;
+        }
+        stage.requestFullscreen().then(() => {
+          // Chrome y Edge: permite que Esc siga siendo la tecla de pausa.
+          if (navigator.keyboard && navigator.keyboard.lock) {
+            navigator.keyboard.lock(['Escape']).catch(() => {});
+          }
+        }).catch(() => showToast('El navegador no permite la pantalla completa.', 4));
+        if (state === 'playing') canvas.focus({ preventScroll: true });
+      });
+
+      document.addEventListener('fullscreenchange', () => {
+        lastFullscreenChange = performance.now();
+        const isFullscreen = document.fullscreenElement === stage;
+        const label = isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa';
+        stage.classList.toggle('is-fullscreen', isFullscreen);
+        fullscreenButton.setAttribute('aria-label', label);
+        fullscreenButton.title = label;
+        if (isFullscreen) {
+          showToast(coarsePointerQuery.matches
+            ? 'Toca de nuevo el botón para volver a pantalla normal'
+            : 'Pulsa F11 para volver a pantalla normal', 5);
+        } else {
+          toast.classList.remove('is-visible');
+          if (navigator.keyboard && navigator.keyboard.unlock) navigator.keyboard.unlock();
+          pauseGame();
+        }
+      });
+    }
+
+    /* --- Bucle --- */
+
+    function updateHud() {
+      const filled = game.state === 'won' ? 1 : game.lastFilled || 0;
+      hudTime.textContent = formatTime(game.endTime || game.time);
+      hudEaten.textContent = String(game.eaten);
+      hudFilled.textContent = formatFilled(filled);
+      hudBar.style.transform = `scaleX(${filled})`;
+      updateCombo();
+    }
+
+    // El contador aparece con la segunda pompa seguida; la barra marca lo que queda.
+    function updateCombo() {
+      const active = game.state === 'playing' && game.combo > 1;
+      combo.classList.toggle('is-visible', active);
+      if (!active) {
+        shownCombo = 0;
+        return;
+      }
+      comboBar.style.transform = `scaleX(${clamp(game.comboTime / CONFIG.comboWindow, 0, 1)})`;
+      if (game.combo === shownCombo) return;
+      shownCombo = game.combo;
+      comboCount.textContent = `×${game.combo}`;
+      if (comboCount.animate && !reducedMotionQuery.matches) {
+        comboCount.animate(
+          [{ transform: 'scale(1.35)' }, { transform: 'scale(0.94)' }, { transform: 'scale(1)' }],
+          { duration: 240, easing: 'ease-out' }
+        );
+      }
+    }
+
+    function handleEvents() {
+      for (const event of game.events) {
+        if (event.type === 'rupture') {
+          renderer.addRupture(event);
+          if (event.byPlayer) audio.pop({ size: event.relative, combo: event.combo });
+        } else if (event.type === 'frenzy') {
+          showToast('¡Ya no queda nadie mayor que tú! Cómetelo todo', 5);
+        } else if (event.type === 'lost' || event.type === 'won') {
+          pauseButton.hidden = true;
+          endTimer = setTimeout(finishGame, event.type === 'won' ? 2600 : 1400);
+        }
+      }
+      game.events.length = 0;
+    }
+
+    function needsFrames() {
+      if (state === 'playing') return true;
+      if (state === 'menu') return stageVisible && !reducedMotionQuery.matches;
+      return state === 'ended' && stageVisible && !reducedMotionQuery.matches;
+    }
+
+    function requestFrame() {
+      if (!frameRequest) {
+        lastFrame = 0;
+        frameRequest = requestAnimationFrame(frame);
+      }
+    }
+
+    function frame(now) {
+      frameRequest = 0;
+      const elapsed = lastFrame ? (now - lastFrame) / 1000 : STEP;
+      const dt = Math.min(elapsed, 0.08);
+      lastFrame = now;
+      accumulator += dt;
+      const input = state === 'playing' ? getInput() : { x: 0, y: 0 };
+      while (accumulator >= STEP) {
+        game.step(STEP, input);
+        accumulator -= STEP;
+      }
+      if (!game.player.removed) game.lastFilled = game.getFilled();
+      handleEvents();
+      renderer.draw(game, dt);
+      if (state === 'playing') updateHud();
+      watchPerformance(elapsed);
+      if (needsFrames()) {
+        frameRequest = requestAnimationFrame(frame);
+      }
+    }
+
+    // Si el equipo no llega a la fluidez, se baja la resolución interna.
+    function watchPerformance(elapsed) {
+      if (state !== 'playing' || maxRatio === 1) return;
+      slowFrames = elapsed > 0.024 && elapsed < 0.2 ? slowFrames + 1 : Math.max(0, slowFrames - 0.5);
+      if (slowFrames > 45) {
+        maxRatio = 1;
+        resize();
+      }
+    }
+
+    function resize() {
+      const width = stage.clientWidth;
+      const height = stage.clientHeight;
+      if (!width || !height) return;
+      renderer.resize(width, height, clamp(window.devicePixelRatio || 1, 1, maxRatio));
+      game.setAspect(width / height);
+      renderer.draw(game, 0);
+    }
+
+    function initVisibility() {
+      new ResizeObserver(resize).observe(stage);
+      window.addEventListener('blur', pauseGame);
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) pauseGame();
+      });
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(entries => {
+          const ratio = entries[entries.length - 1].intersectionRatio;
+          stageVisible = ratio > 0;
+          if (ratio < 0.2) pauseGame();
+          if (needsFrames()) requestFrame();
+        }, { threshold: [0, 0.2, 0.5] }).observe(stage);
+      }
+    }
+
+    initControls();
+    soundButton.hidden = !audio.available;
+    applyMuted();
+    initFullscreen();
+    resize();
+    initVisibility();
+
+    const record = readRecord();
+    if (record) panelText.textContent += ` Tu récord: ${describeRecord(record)}.`;
+    setState('menu');
+    requestFrame();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDots);
+  } else {
+    initDots();
+  }
+})();
+  </script>
+</body>
+
+</html>
