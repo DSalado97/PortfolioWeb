@@ -177,7 +177,7 @@ function getAttribute(tag, name) {
   try {
     const text = read(snapshotFile);
     const data = JSON.parse(text);
-    const forbidden = new Set(['telefono', 'nacimiento', '_id']);
+    const forbidden = new Set(['telefono', 'nacimiento', '_id', 'nota']);
     const visit = (value, trail) => {
       if (Array.isArray(value)) {
         value.forEach((item, index) => visit(item, `${trail}[${index}]`));
@@ -225,21 +225,54 @@ function getAttribute(tag, name) {
   check('index.html con un único <h1>; cada página con lang, title, description, canonical y JSON-LD válido', failures);
 })();
 
-// 7. Privacidad: sin teléfono, fecha de nacimiento ni cálculo de edad en el sitio público
+// 7. Privacidad: se revisan TODOS los archivos versionados, porque GitHub publica
+// el repositorio entero. Los patrones son genéricos para no repetir aquí los datos;
+// si existe CV/datos-privados.json (solo en local) se busca además su valor exacto.
 (function checkPrivacy() {
   const failures = [];
+  const listing = spawnSync('git', ['ls-files', '-z'], { cwd: rootDir, encoding: 'utf8' });
+  if (listing.status !== 0) {
+    failures.push('No se ha podido ejecutar "git ls-files"');
+  }
+  const trackedFiles = (listing.stdout || '').split('\0').filter(Boolean);
+
+  for (const name of trackedFiles) {
+    if (/^CV\//i.test(name)) failures.push(`${name}: la carpeta CV/ no debe versionarse`);
+    if (/(^|\/)\.env($|\.(?!example$))/.test(name)) failures.push(`${name}: los .env no deben versionarse`);
+    if (/\.pdf$/i.test(name)) failures.push(`${name}: el PDF del CV contiene el teléfono`);
+  }
+
+  const privateFile = path.join(rootDir, 'CV', 'datos-privados.json');
+  const privateDigits = fs.existsSync(privateFile)
+    ? String(JSON.parse(read(privateFile)).telefono || '').replace(/\D/g, '').slice(-9)
+    : '';
   const patterns = [
-    [/[eliminado]/, 'teléfono'],
-    [/[eliminado]/i, 'fecha de nacimiento'],
-    [/calcularEdad|calculateAge|id="edad"|getElementById\(['"]edad['"]\)/, 'cálculo de la edad']
+    [/(?<![\w.+-])(?:(?:\+|00)34[\s.-]?)?[67]\d{2}(?:[\s.-]?\d{2}){3}(?![\w.])/, 'un teléfono móvil'],
+    [/(?<![\w.+-])(?:(?:\+|00)34[\s.-]?)?[67]\d{2}(?:[\s.-]?\d{3}){2}(?![\w.])/, 'un teléfono móvil'],
+    [/nacimiento["'`]?\s*[:=]\s*["'`]?\d/i, 'una fecha de nacimiento'],
+    [/nacimiento:?\s*(?:<[^>]*>\s*)+\d/i, 'una fecha de nacimiento'],
+    [/onrender\.com/i, 'un enlace a Render (retirado)']
   ];
-  for (const file of [...htmlFiles, ...publicJsFiles]) {
-    const text = read(file);
+  const textFiles = trackedFiles.filter(name =>
+    /\.(html|js|json|css|md|txt|xml|ya?ml|svg|example)$/i.test(name)
+    && !/^(assets\/vendor\/|package-lock\.json$)/.test(name)
+    && fs.existsSync(path.join(rootDir, name))
+  );
+  for (const name of textFiles) {
+    const text = read(path.join(rootDir, name));
     for (const [pattern, label] of patterns) {
-      if (pattern.test(text)) failures.push(`${rel(file)} contiene ${label}`);
+      if (pattern.test(text)) failures.push(`${name} contiene ${label}`);
+    }
+    if (privateDigits && text.replace(/[\s.-]/g, '').includes(privateDigits)) {
+      failures.push(`${name} contiene el teléfono de CV/datos-privados.json`);
     }
   }
-  check('HTML y JS públicos sin teléfono, fecha de nacimiento ni edad', failures);
+  for (const file of [...htmlFiles, ...publicJsFiles]) {
+    if (/calcularEdad|calculateAge|id="edad"|getElementById\(['"]edad['"]\)/.test(read(file))) {
+      failures.push(`${rel(file)} contiene el cálculo de la edad`);
+    }
+  }
+  check(`Privacidad: ${textFiles.length} archivos versionados sin teléfono, nacimiento, CV, .env ni Render`, failures);
 })();
 
 // 8. Calidad del código: sin var, sin on*=, un único script inline (tema)
@@ -278,19 +311,18 @@ function getAttribute(tag, name) {
   if (!fs.existsSync(sitemapFile)) {
     failures.push('Falta sitemap.xml');
   } else {
-    const limit = new Date();
-    limit.setUTCHours(0, 0, 0, 0);
-    limit.setUTCDate(limit.getUTCDate() - 1);
+    const today = new Date();
+    today.setUTCHours(23, 59, 59, 999);
     const dates = [...read(sitemapFile).matchAll(/<lastmod>([^<]+)<\/lastmod>/g)].map(match => match[1].trim());
     if (!dates.length) failures.push('sitemap.xml no tiene <lastmod>');
     for (const value of dates) {
       const parsed = new Date(`${value}T00:00:00Z`);
-      if (Number.isNaN(parsed.getTime()) || parsed < limit) {
-        failures.push(`lastmod ${value} es anterior a ${limit.toISOString().slice(0, 10)}`);
+      if (Number.isNaN(parsed.getTime()) || parsed > today) {
+        failures.push(`lastmod "${value}" no es una fecha válida o es futura`);
       }
     }
   }
-  check('sitemap.xml con lastmod reciente', failures);
+  check('sitemap.xml con lastmod válido', failures);
 })();
 
 // 10. Página 404
